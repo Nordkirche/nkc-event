@@ -1,22 +1,19 @@
 <?php
+
 namespace  Nordkirche\NkcEvent\ViewHelpers;
 
 use Nordkirche\Ndk\Domain\Model\Address;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 use Nordkirche\Ndk\Domain\Model\Event\Event;
 use Nordkirche\Ndk\Domain\Model\File\Image;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class JsonViewHelper extends AbstractViewHelper
 {
-
     /**
      * @var bool
      */
     protected $escapeOutput = false;
-
-
 
     /**
      * Initialize arguments.
@@ -26,7 +23,7 @@ class JsonViewHelper extends AbstractViewHelper
     public function initializeArguments()
     {
         parent::initializeArguments();
-        $this->registerArgument('event', 'object', 'Event object', FALSE);
+        $this->registerArgument('event', 'object', 'Event object', false);
     }
 
     /**
@@ -42,7 +39,6 @@ class JsonViewHelper extends AbstractViewHelper
         }
 
         if ($event instanceof Event) {
-
             if ($event->getPicture() instanceof Image) {
                 $image = $event->getPicture()->render(600);
             } else {
@@ -59,7 +55,7 @@ class JsonViewHelper extends AbstractViewHelper
                 'name' => $event->getTitle(),
                 'description' => $event->getDescription(),
                 'image' => $image,
-                'startDate' => $event->getStartsAt()->format("Y-m-d\TH:i")
+                'startDate' => $event->getStartsAt()->format("Y-m-d\TH:i"),
             ];
 
             if ($event->getAddress() instanceof Address) {
@@ -67,18 +63,17 @@ class JsonViewHelper extends AbstractViewHelper
                     '@type' => 'PostalAddress',
                     'addressLocality' => $event->getAddress()->getCity(),
                     'postalCode' => $event->getAddress()->getZipCode(),
-                    'streetAddress' => $event->getAddress()->getStreet()
+                    'streetAddress' => $event->getAddress()->getStreet(),
                 ];
             }
 
             $price = $event->getPrice();
 
             if (isset($price['range']['from']) || isset($price['range']['to'])) {
-
                 $result['offers'] = [
                     '@type' => 'Offer',
-                    'price' => (bool) $price['range']['from'] ? $price['range']['from'] : $price['range']['to'],
-                    'priceCurrency' => 'EUR'
+                    'price' => (bool)$price['range']['from'] ? $price['range']['from'] : $price['range']['to'],
+                    'priceCurrency' => 'EUR',
                 ];
 
                 if ($event->getRegistrationLink() != '') {
@@ -87,9 +82,7 @@ class JsonViewHelper extends AbstractViewHelper
             }
 
             return json_encode($result);
-        } else {
-            return json_encode([]);
         }
+        return json_encode([]);
     }
-
 }

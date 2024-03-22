@@ -2,16 +2,15 @@
 
 namespace  Nordkirche\NkcEvent\ViewHelpers;
 
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
-use Nordkirche\NkcBase\Exception\ApiException;
-use Nordkirche\NkcBase\Service\ApiService;
 use Nordkirche\Ndk\Domain\Query\EventQuery;
 use Nordkirche\Ndk\Domain\Repository\EventRepository;
+use Nordkirche\NkcBase\Exception\ApiException;
+use Nordkirche\NkcBase\Service\ApiService;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class FindEventsViewHelper extends AbstractViewHelper
 {
-
     /**
      * @var bool
      */

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Nordkirche\NkcEvent\Event;
@@ -12,8 +13,7 @@ final class ModifyAssignedValuesEvent
         private readonly EventController $controller,
         private array $assignedValues,
         private readonly Request $request
-    ) {
-    }
+    ) {}
 
     public function getAssignedValues(): array
     {

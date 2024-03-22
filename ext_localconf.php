@@ -1,69 +1,149 @@
 <?php
 
+use Nordkirche\NkcEvent\Controller\EventController;
+use Nordkirche\NkcEvent\Controller\MapController;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+
 defined('TYPO3') || die('Access denied.');
 
 call_user_func(
     function () {
-
         $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['excludedParameters'][] = 'tx_nkcevent_map[page]';
         $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['excludedParameters'][] = 'tx_nkcevent_main[page]';
 
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
+        ExtensionUtility::configurePlugin(
             'NkcEvent',
-            'Main',
+            'Show',
             [
-                \Nordkirche\NkcEvent\Controller\EventController::class => 'list, search, searchForm, show, export, data, paginatedData, redirect'
+                EventController::class => 'show, export',
             ],
             // non-cacheable actions
             [
-                \Nordkirche\NkcEvent\Controller\EventController::class => 'export, search, paginatedData, redirect'
+                EventController::class => 'export',
             ]
         );
 
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
+        ExtensionUtility::configurePlugin(
             'NkcEvent',
-            'Map',
+            'List',
             [
-                \Nordkirche\NkcEvent\Controller\MapController::class => 'show,list,data,paginatedData',
+                EventController::class => 'list, search, data, paginatedData',
             ],
             // non-cacheable actions
             [
-                \Nordkirche\NkcEvent\Controller\MapController::class => 'paginatedData'
+                EventController::class => 'search, paginatedData',
+            ]
+        );
+
+        ExtensionUtility::configurePlugin(
+            'NkcEvent',
+            'SearchForm',
+            [
+                EventController::class => 'searchForm',
+            ],
+            // non-cacheable actions
+            [
+                EventController::class => 'searchForm',
+            ]
+        );
+
+        ExtensionUtility::configurePlugin(
+            'NkcEvent',
+            'Redirect',
+            [
+                EventController::class => 'redirect',
+            ],
+            // non-cacheable actions
+            [
+                EventController::class => 'redirect',
+            ]
+        );
+
+        ExtensionUtility::configurePlugin(
+            'NkcEvent',
+            'Map',
+            [
+                MapController::class => 'show,data,paginatedData',
+            ],
+            // non-cacheable actions
+            [
+                MapController::class => 'paginatedData',
+            ]
+        );
+
+        ExtensionUtility::configurePlugin(
+            'NkcEvent',
+            'MapList',
+            [
+                MapController::class => 'list,data,paginatedData',
+            ],
+            // non-cacheable actions
+            [
+                MapController::class => 'paginatedData',
             ]
         );
 
         // wizards
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(
+        ExtensionManagementUtility::addPageTSConfig(
             'mod {
-            wizards.newContentElement.wizardItems.plugins {
-                elements {
-                   event_main {
-                        iconIdentifier = content-image
-                        title = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:tx_nkc_event_domain_model_main
-                        description = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:tx_nkc_event_domain_model_main.description
-                        tt_content_defValues {
-                            CType = list
-                            list_type = nkcevent_main
+                        wizards.newContentElement.wizardItems.nordkirche_events {
+                            header = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.header
+                            elements {
+                               event_list {
+                                    iconIdentifier = content-plugin
+                                    title = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_list
+                                    description = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_list.description
+                                    tt_content_defValues {
+                                        CType = list
+                                        list_type = nkcevent_list
+                                    }
+                                }
+                               event_show {
+                                    iconIdentifier = content-plugin
+                                    title = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_show
+                                    description = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_show.description
+                                    tt_content_defValues {
+                                        CType = list
+                                        list_type = nkcevent_show
+                                    }
+                                }
+                               event_searchform {
+                                    iconIdentifier = content-plugin
+                                    title = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_searchform
+                                    description = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_searchform.description
+                                    tt_content_defValues {
+                                        CType = list
+                                        list_type = nkcevent_searchform
+                                    }
+                                }
+                                event_map {
+                                    iconIdentifier = content-plugin
+                                    title = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_map
+                                    description = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_map.description
+                                    tt_content_defValues {
+                                        CType = list
+                                        list_type = nkcevent_map
+                                    }
+                                }
+                                event_maplist {
+                                    iconIdentifier = content-plugin
+                                    title = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_maplist
+                                    description = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.nkcevent_maplist.description
+                                    tt_content_defValues {
+                                        CType = list
+                                        list_type = nkcevent_maplist
+                                    }
+                                }
+                            }
+                            show = *
                         }
-                    }
-                    event_map {
-                        iconIdentifier = content-image
-                        title = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:tx_nkc_event_domain_model_map
-                        description = LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:tx_nkc_event_domain_model_map.description
-                        tt_content_defValues {
-                            CType = list
-                            list_type = nkcevent_map
-                        }
-                    }
-                    
-                }
-                show = *
-            }
-       }'
+                   }'
         );
 
-        // Page module hook
-        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms/layout/class.tx_cms_layout.php']['tt_content_drawItem']['nkc_event'] =
-        \Nordkirche\NkcEvent\Hook\CmsLayout::class;
+        // Register Upgrade wizards
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['txNkcEventPluginUpdater'] = \Nordkirche\NkcEvent\Updates\PluginUpdater::class;
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['txNkcEventPluginPermissionUpdater'] = \Nordkirche\NkcEvent\Updates\PluginPermissionUpdater::class;
+
     }
 );

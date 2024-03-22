@@ -6,7 +6,6 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 class FilterDate extends AbstractEntity
 {
-
     /**
      * @var \DateTime
      */

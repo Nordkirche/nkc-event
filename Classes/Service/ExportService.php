@@ -7,16 +7,15 @@ use TYPO3\CMS\Core\SingletonInterface;
 
 class ExportService implements SingletonInterface
 {
-
     /**
      * Prefix for iCalendar files
      */
-    const VCALENDAR_START = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:netl_events TYPO3 Extension\nMETHOD:PUBLISH";
+    public const VCALENDAR_START = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:netl_events TYPO3 Extension\nMETHOD:PUBLISH";
 
     /**
      * Postfix for iCalendar files
      */
-    const VCALENDAR_END = 'END:VCALENDAR';
+    public const VCALENDAR_END = 'END:VCALENDAR';
 
     /**
      * Render the iCalendar events with the required wrap
@@ -30,13 +29,13 @@ class ExportService implements SingletonInterface
         $eventExport = '';
 
         foreach ($events as $event) {
-            $eventExport.= self::iCalendarData($event);
+            $eventExport .= self::iCalendarData($event);
         }
 
         $content = implode("\n", [
             self::VCALENDAR_START,
             $eventExport,
-            self::VCALENDAR_END
+            self::VCALENDAR_END,
         ]);
         self::setIcalHeaders($content, $filename);
 

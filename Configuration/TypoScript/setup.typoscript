@@ -1,5 +1,5 @@
 
-plugin.tx_nkcevent_main {
+plugin.tx_nkcevent {
     view {
         templateRootPaths.0 = EXT:nkc_event/Resources/Private/Templates/
         templateRootPaths.1 = {$plugin.tx_nkcevent_main.view.templateRootPath}
@@ -22,11 +22,11 @@ plugin.tx_nkcevent_main {
     settings {
         socialMediaChannels < plugin.tx_nkcaddress_person.settings.socialMediaChannels
 
-        eventIconName = /typo3conf/ext/nkc_base/Resources/Public/MapIcons/event_%s.svg
+        eventIconName = EXT:nkc_base/Resources/Public/MapIcons/event_%s.svg
 
-        monthIcon = /typo3conf/ext/nkc_base/Resources/Public/Icons/icon_calendar_month.svg
+        monthIcon = EXT:nkc_base/Resources/Public/Icons/icon_calendar_month.svg
 
-        downloadIcon = /typo3conf/ext/nkc_base/Resources/Public/Icons/link_download.svg
+        downloadIcon = EXT:nkc_base/Resources/Public/Icons/link_download.svg
 
         downloadBaseUrl = https://www.nordkirche.de/
 
@@ -153,6 +153,9 @@ plugin.tx_nkcevent_main {
     }
 }
 
+plugin.tx_nkcevent_show < plugin.tx_nkcevent
+plugin.tx_nkcevent_list < plugin.tx_nkcevent
+plugin.tx_nkcevent_searchform < plugin.tx_nkcevent
 
 plugin.tx_nkcevent_map {
     view {
@@ -215,7 +218,10 @@ plugin.tx_nkcevent_map {
     }
 }
 
-[getTSFE().type == {$plugin.tx_nkcevent_main.ajaxTypeNum}]
+plugin.tx_nkcevent_maplist < plugin.tx_nkcevent_map
+
+
+[getTSFE() && getTSFE().type == {$plugin.tx_nkcevent_main.ajaxTypeNum}]
     lib.contentElement.settings.additionalConfig.plainResult = 1
 [global]
 
@@ -242,7 +248,7 @@ ajaxEvents {
     }
 }
 
-[getTSFE().type == {$plugin.tx_nkcevent_map.ajaxTypeNum}]
+[getTSFE() && getTSFE().type == {$plugin.tx_nkcevent_map.ajaxTypeNum}]
     lib.contentElement.settings.additionalConfig.plainResult = 1
 [global]
 

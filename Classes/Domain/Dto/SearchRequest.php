@@ -4,7 +4,6 @@ namespace Nordkirche\NkcEvent\Domain\Dto;
 
 class SearchRequest
 {
-
     /**
      * @var \DateTime
      */
@@ -193,6 +192,21 @@ class SearchRequest
     public function getArray(): array
     {
         return $this->toArray();
+    }
+
+    /**
+     * @param array|null $data
+     */
+    public function decorate($data): void
+    {
+        if (is_array($data)) {
+            foreach (['search', 'category', 'city', 'location', 'dateFrom', 'dateTo', 'organizer'] as $property) {
+                if (!empty($data[$property])) {
+                    $setterName = 'set' . ucfirst($property);
+                    $this->$setterName($data[$property]);
+                }
+            }
+        }
     }
 
     /**

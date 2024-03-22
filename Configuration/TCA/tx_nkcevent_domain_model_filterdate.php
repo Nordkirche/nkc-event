@@ -15,7 +15,7 @@ return [
             'starttime' => 'starttime',
             'endtime' => 'endtime',
         ],
-        'iconfile' => 'EXT:nkc_event/Resources/Public/Icons/tx_nkcevent_domain_model_filterdate.svg'
+        'iconfile' => 'EXT:nkc_event/Resources/Public/Icons/tx_nkcevent_domain_model_filterdate.svg',
     ],
     'types' => [
         '1' => ['showitem' => 'hidden, name, date_from, date_to, be_name,--div--;LLL:EXT:core/Resources/Private/Language/locallang_ttc.xlf:tabs.access,starttime, endtime'],
@@ -41,7 +41,7 @@ return [
                 'checkbox' => 0,
                 'default' => 0,
                 'range' => [
-                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y'))
+                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y')),
                 ],
                 'renderType' => 'inputDateTime',
                 ['behaviour' => ['allowLanguageSynchronization' => true]],
@@ -57,7 +57,7 @@ return [
                 'checkbox' => 0,
                 'default' => 0,
                 'range' => [
-                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y'))
+                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y')),
                 ],
                 'renderType' => 'inputDateTime',
                 ['behaviour' => ['allowLanguageSynchronization' => true]],
@@ -69,7 +69,7 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'eval' => 'trim,required'
+                'eval' => 'trim,required',
             ],
         ],
         'be_name' => [
@@ -78,7 +78,7 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'eval' => 'trim,required'
+                'eval' => 'trim,required',
             ],
         ],
         'date_from' => [

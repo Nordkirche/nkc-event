@@ -23,25 +23,32 @@
     <f:image src="{settings.monthIcon}" alt="" />
 
     <h2>
-    <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}">
-        {event.title}
-    </f:link.page>
+        <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}">
+            {event.title}
+        </f:link.page>
     </h2>
 
-    <v:render.template file="EXT:nkc_event/Resources/Private/Partials/Event/DateShort.html" variables="{event: event}" />
+    <p>
+        <v:render.template file="EXT:nkc_event/Resources/Private/Partials/Event/DateShort.html" variables="{event: event}" />
+    </p>
 
-    {event.locationName} <br>
-    <v:render.template file="EXT:nkc_event/Resources/Private/Partials/Event/AddressShort.html" variables="{address: event.address}" />
+    <p>
+        {event.locationName}
+    </p>
+    <p>
+        <v:render.template file="EXT:nkc_event/Resources/Private/Partials/Event/AddressShort.html" variables="{address: event.address}" />
+    </p>
 
-    <f:if condition="{event.teaserText}">
-        <f:then>
-            <f:format.crop maxCharacters="120" append="...">{event.teaserText}</f:format.crop>
-        </f:then>
-        <f:else if="{event.description}">
-            <f:format.crop maxCharacters="120" append="..."><f:format.stripTags>{event.description}</f:format.stripTags></f:format.crop>
-        </f:else>
-    </f:if>
-
+    <p>
+<f:if condition="{event.teaserText}">
+    <f:then>
+        <f:format.crop maxCharacters="120" append="...">{event.teaserText}</f:format.crop>
+    </f:then>
+    <f:else if="{event.description}">
+        <f:format.crop maxCharacters="120" append="..."><f:format.stripTags>{event.description}</f:format.stripTags></f:format.crop>
+    </f:else>
+</f:if>
+    </p>
     <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}" class="search-result__link">&nbsp;</f:link.page>
 
 </html>

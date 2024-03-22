@@ -3,18 +3,40 @@
     <file source-language="en" datatype="plaintext" original="messages" date="2017-07-04T09:11:42Z" product-name="nkc_event">
         <header/>
         <body>
-            <trans-unit id="tx_nkc_event_domain_model_main">
-                <source>Ausgabe von Veranstaltungen</source>
-            </trans-unit>
-            <trans-unit id="tx_nkc_event_domain_model_main.description">
-                <source>Frei konfigurierbare Listen und Detail-Ansicht von Veranstaltungen</source>
-            </trans-unit>
-            <trans-unit id="tx_nkc_event_domain_model_map">
-                <source>Kartendarstellung von Veranstaltungen</source>
-            </trans-unit>
-            <trans-unit id="tx_nkc_event_domain_model_map.description">
-                <source>Frei konfigurierbare Google Karte für Veranstaltungen</source>
-            </trans-unit>
+			<trans-unit id="wizard.header">
+				<source>Nordkirche Veranstaltungen</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_list">
+				<source>Veranstaltungen Liste / Suchergebnis</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_list.description">
+				<source>Frei konfigurierbare Listen mit Veranstaltungen</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_show">
+				<source>Detail-Ansicht einer Veranstaltung</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_show.description">
+				<source>Einzelansicht einer Veranstaltung</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_searchform">
+				<source>Such-Formular für Veranstaltungen</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_searchform.description">
+				<source>Konfigurierbares Formular für die Suche nach Veranstaltungen</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_map">
+				<source>Karten-Ansicht von Veranstaltungen</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_map.description">
+				<source>Darstellung einer Karte mit Veranstaltungen</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_maplist">
+				<source>Karten- und Listen-Ansicht von Veranstaltungen</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_maplist.description">
+				<source>Darstellung einer Karte und Liste mit Veranstaltungen</source>
+			</trans-unit>
+
             <trans-unit id="tx_nkcevent_domain_model_filterdate">
                 <source>Filter date</source>
             </trans-unit>

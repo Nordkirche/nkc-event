@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Nordkirche\NkcEvent\Event;
@@ -14,8 +15,7 @@ final class ModifyEventQueryEvent
         private EventQuery $eventQuery,
         private readonly Request $request,
         private readonly array $settings
-    ) {
-    }
+    ) {}
 
     public function getEventQuery(): EventQuery
     {

@@ -22,7 +22,7 @@ $EM_CONF['nkc_event'] = [
         'depends' => [
             'typo3' => '11.5.0-11.5.99',
             'nkc_base' => '^11.5.0',
-            'vhs' => '^6.1'
+            'vhs' => '^6.1',
         ],
         'conflicts' => [],
         'suggests' => [],

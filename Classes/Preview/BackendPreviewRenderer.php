@@ -1,118 +1,75 @@
 <?php
 
-namespace Nordkirche\NkcEvent\Hook;
+namespace Nordkirche\NkcEvent\Preview;
 
-/**
- * This file is part of the "nkc_event" Extension for TYPO3 CMS.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- */
 use Nordkirche\Ndk\Api;
 use Nordkirche\Ndk\Domain\Model\Event\Event;
 use Nordkirche\Ndk\Domain\Query\EventQuery;
 use Nordkirche\Ndk\Domain\Repository\EventRepository;
 use Nordkirche\Ndk\Service\NapiService;
-use Nordkirche\NkcBase\Exception\ApiException;
 use Nordkirche\NkcBase\Service\ApiService;
 use Nordkirche\NkcEvent\Controller\EventController;
 use Nordkirche\NkcEvent\Controller\MapController;
-use TYPO3\CMS\Backend\View\PageLayoutView;
-use TYPO3\CMS\Backend\View\PageLayoutViewDrawItemHookInterface;
+use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
-/**
- * Hook to display verbose information about the plugin
- */
-class CmsLayout implements PageLayoutViewDrawItemHookInterface
+class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRendererInterface
 {
-    public const LLPATH = 'LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:';
-    public const LLPATH_DB = 'LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:';
-
     /**
      * @var Api
      */
     protected $api;
 
     /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
      * @var array
      */
     protected $flexformData;
 
-    /**
-     * Preprocesses the preview rendering of a content element.
-     *
-     * @param PageLayoutView $parentObject Calling parent object
-     * @param bool $drawItem Whether to draw the item using the default functionalities
-     * @param string $headerContent Header content
-     * @param string $itemContent Item content
-     * @param array $row Record row of tt_content
-     * @throws ApiException
-     * @throws Exception
-     */
-    public function preProcess(PageLayoutView &$parentObject, &$drawItem, &$headerContent, &$itemContent, array &$row)
+    public function renderPageModulePreviewHeader(GridColumnItem $item): string
     {
-        if ($row['list_type'] == 'nkcevent_main') {
-            $this->api = ApiService::get();
+        $row = $item->getRecord();
+        return sprintf('<h3>%s</h3>', LocalizationUtility::translate('LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.' . $row['list_type']));
+    }
 
-            $this->flexformData = GeneralUtility::xml2array($row['pi_flexform']);
+    public function renderPageModulePreviewContent(GridColumnItem $item): string
+    {
+        $row = $item->getRecord();
+        $this->api = ApiService::get();
+        $this->flexformData = GeneralUtility::xml2array($row['pi_flexform']);
+        $content = '';
 
-            $drawItem = false;
-
-            $headerContent = '<h3>Veranstaltung(en) darstellen</h3>';
-
-            if (str_contains($this->getFieldFromFlexform('switchableControllerActions', 'sDEF'), ';')) {
-                list($switchableControllerAction) = explode(';', $this->getFieldFromFlexform('switchableControllerActions', 'sDEF'));
-            } else {
-                $switchableControllerAction = $this->getFieldFromFlexform('switchableControllerActions', 'sDEF');
-            }
-
-            list($controller, $action) = explode('->', $switchableControllerAction);
-
-            $content = '<p>Funktion: ' . ucfirst($action) . '</p>';
-
-            $layoutKey = $this->getFieldFromFlexform('settings.flexform.searchFormTemplate', 'sTemplate');
-
-            $content .= '<p>Layout: ' . ($layoutKey ? $layoutKey : 'Default') . '</p>';
-
-            $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
-            if ($action == 'show') {
+        switch ($row['list_type']) {
+            case 'nkcevent_show':
                 $content .= $this->renderEventSingleView();
-            } elseif ($action == 'selection') {
-                $content .= $this->renderEventSelectionView();
-            } elseif ($action == 'searchForm') {
-                $content .= '';
-            } else {
+                break;
+            case 'nkcevent_list':
+                $layoutKey = $this->getFieldFromFlexform('settings.flexform.searchFormTemplate', 'sTemplate');
+                $content .= '<p>Layout: ' . ($layoutKey ? $layoutKey : 'Default') . '</p>';
                 $content .= $this->renderEventListView();
-            }
-
-            $itemContent = $content;
-        } elseif ($row['list_type'] == 'nkcevent_map') {
-            $this->api = ApiService::get();
-
-            $this->flexformData = GeneralUtility::xml2array($row['pi_flexform']);
-
-            $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
-            $drawItem = false;
-
-            $headerContent = '<h3>Karte mit Veranstaltungen darstellen</h3>';
-
-            $itemContent = $this->renderMapView();
+                break;
+            case 'nkcevent_map':
+            case 'nkcevent_maplist':
+                $content .= $this->renderMapView();
+                break;
         }
+
+        return $content;
+    }
+
+    public function renderPageModulePreviewFooter(GridColumnItem $item): string
+    {
+        return 'Powered by NAPI';
+    }
+
+    public function wrapPageModulePreview(string $previewHeader, string $previewContent, GridColumnItem $item): string
+    {
+        return $previewHeader . $previewContent;
     }
 
     /**
      * @return string
-     * @throws Exception
+     * @throws \Exception
      */
     private function renderMapView()
     {
@@ -133,12 +90,12 @@ class CmsLayout implements PageLayoutViewDrawItemHookInterface
             ],
         ];
 
-        $mapController = $this->objectManager->get(MapController::class);
+        $mapController = GeneralUtility::makeInstance(MapController::class);
         $mapController->initializeAction();
 
         $query = new EventQuery();
 
-        list($limit, $mapItems) = $mapController->getMapItems($query, $settings);
+        [$limit, $mapItems] = $mapController->getMapItems($query, $settings);
 
         $content .= '<p>Marker:<br /><ul>';
 
@@ -160,42 +117,14 @@ class CmsLayout implements PageLayoutViewDrawItemHookInterface
 
     /**
      * @return string
-     */
-    private function renderEventSelectionView()
-    {
-        $content = '';
-
-        $selection = GeneralUtility::trimExplode(',', $this->getFieldFromFlexform('settings.flexform.eventCollection', 'sDEF'));
-        $napiService = $this->api->factory(NapiService::class);
-        $events  = $napiService->resolveUrls($selection);
-
-        if (count($events)) {
-            $content .= '<p>Auswahl von Veranstaltungen:<br /><ul>';
-
-            foreach ($events as $event) {
-                $content .= '<li>';
-                $content .= htmlentities($event->getLabel());
-                $content .= ' [' . (int)($event->getId()) . ']';
-                $content .= '</li>';
-            }
-
-            $content .= '</ul></p>';
-        } else {
-            $content .= 'Keine Treffer!';
-        }
-
-        return $content;
-    }
-
-    /**
-     * @return string
-     * @throws Exception
+     * @throws \Exception
      */
     private function renderEventListView()
     {
         $content = '';
 
         $eventRepository = $this->api->factory(EventRepository::class);
+
         /** @var EventController $eventController */
         $eventController = GeneralUtility::makeInstance(EventController::class);
 
@@ -226,7 +155,7 @@ class CmsLayout implements PageLayoutViewDrawItemHookInterface
         $events = $eventRepository->get($query);
 
         if ($events) {
-            $content .= '<p>Liste von Veranstaltungen:<br /><ul>';
+            $content .= '<p>Vorschau:<br /><ul>';
 
             foreach ($events as $event) {
                 $content .= '<li>';
@@ -238,7 +167,7 @@ class CmsLayout implements PageLayoutViewDrawItemHookInterface
             $content .= '</ul></p>';
 
             if ($events->getPageCount() > 1) {
-                $content .= '... ' . $events->getRecordCount() . ' Veranstaltungen';
+                $content .= '... und ' . $events->getRecordCount() - 10 . ' weitere Veranstaltungen';
             }
         } else {
             $content .= 'Keine Treffer!';
@@ -253,7 +182,7 @@ class CmsLayout implements PageLayoutViewDrawItemHookInterface
     private function renderEventSingleView()
     {
         $content = '';
-        $eventResource = $this->getFieldFromFlexform('settings.flexform.singleInstitution', 'sDEF');
+        $eventResource = $this->getFieldFromFlexform('settings.flexform.singleEvent', 'sDEF');
         if ($eventResource) {
             $content .= '<p>Zeige ausgewähltes Event: ';
             $napiService = $this->api->factory(NapiService::class);
@@ -266,7 +195,7 @@ class CmsLayout implements PageLayoutViewDrawItemHookInterface
             }
             $content .= '</p>';
         } else {
-            $content .= '<p>Zeige Event via URL Parameter</p>';
+            $content .= '<p>Zeige Veranstaltung via URL Parameter</p>';
         }
         return $content;
     }

@@ -2,15 +2,15 @@
 
 namespace Nordkirche\NkcEvent\Domain\Repository;
 
-use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
+
 class FilterDateRepository extends Repository
 {
-
     // Order by daze
     protected $defaultOrderings = [
-        'date_from' => QueryInterface::ORDER_ASCENDING
+        'date_from' => QueryInterface::ORDER_ASCENDING,
     ];
 
     /**
@@ -28,12 +28,18 @@ class FilterDateRepository extends Repository
         if ((bool)$startedDates) {
             // Find also started dates
             $query->matching(
-                $query->logicalAnd([$query->equals('pid', $storagePid), $query->greaterThanOrEqual('dateTo', $today)])
+                $query->logicalAnd(
+                    $query->equals('pid', $storagePid),
+                    $query->greaterThanOrEqual('dateTo', $today)
+                )
             );
         } else {
             // Find upcoming
             $query->matching(
-                $query->logicalAnd([$query->equals('pid', $storagePid), $query->greaterThanOrEqual('dateFrom', $today)])
+                $query->logicalAnd(
+                    $query->equals('pid', $storagePid),
+                    $query->greaterThanOrEqual('dateFrom', $today)
+                )
             );
         }
 

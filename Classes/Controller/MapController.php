@@ -2,23 +2,22 @@
 
 namespace Nordkirche\NkcEvent\Controller;
 
-use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Core\Cache\CacheManager;
-use Nordkirche\Ndk\Service\Result;
 use Nordkirche\Ndk\Domain\Model\Event\Event;
 use Nordkirche\Ndk\Domain\Query\EventQuery;
 use Nordkirche\Ndk\Domain\Repository\EventRepository;
+use Nordkirche\Ndk\Service\Interfaces\QueryInterface;
 use Nordkirche\Ndk\Service\NapiService;
+use Nordkirche\Ndk\Service\Result;
 use Nordkirche\NkcBase\Controller\BaseController;
 use Nordkirche\NkcBase\Service\ApiService;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\View\JsonView;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use Nordkirche\Ndk\Service\Interfaces\QueryInterface;
 
 class MapController extends BaseController
 {
-
     /**
      * @var EventRepository
      */
@@ -79,7 +78,6 @@ class MapController extends BaseController
      */
     private function createView($currentPage = 1)
     {
-
         // Get current cObj
         $cObj = $this->configurationManager->getContentObject();
 
@@ -139,7 +137,6 @@ class MapController extends BaseController
      */
     public function dataAction($forceReload = 0): ResponseInterface
     {
-
         $this->view->setVariablesToRender(['json']);
 
         // Get current cObj
@@ -162,7 +159,6 @@ class MapController extends BaseController
         }
 
         if (!trim($mapMarkerJson) || $forceReload) {
-
             /** @var EventQuery $query */
             $query = $this->getEventQuery();
 
@@ -173,8 +169,7 @@ class MapController extends BaseController
             $cacheInstance->set($this->getCacheKey($cObj), $mapMarkerJson);
         }
 
-        $this->view->assignMultiple(['json' =>  json_decode($mapMarkerJson, TRUE)]);
-        return $this->htmlResponse();
+        return $this->jsonResponse($mapMarkerJson);
     }
 
     /**
@@ -203,7 +198,6 @@ class MapController extends BaseController
         }
 
         if (!trim($mapMarkerJson) || $forceReload) {
-
             // Get TS Config and add to local settings
             $tsConfig = $this->getTypoScriptConfiguration();
             $this->settings['eventIconName'] = $tsConfig['plugin']['tx_nkcevent_main']['settings']['eventIconName'];
@@ -238,7 +232,6 @@ class MapController extends BaseController
      */
     public function paginatedDataAction($page = 1): ResponseInterface
     {
-
         $this->view->setVariablesToRender(['json']);
 
         // Manually activation of pagination mode
@@ -252,7 +245,7 @@ class MapController extends BaseController
         $mapMarkerJson = $cacheInstance->get($this->getCacheKey($cObj));
 
         if (trim($mapMarkerJson)) {
-            $this->view->assignMultiple(['json' => json_decode($mapMarkerJson, TRUE)]);
+            $this->view->assignMultiple(['json' => json_decode($mapMarkerJson, true)]);
         } else {
             /** @var EventQuery $query */
             $query = $this->getEventQuery($page);
@@ -307,7 +300,6 @@ class MapController extends BaseController
             } else {
                 $query->setCategoriesOr($categories);
             }
-
         }
 
         // Cities

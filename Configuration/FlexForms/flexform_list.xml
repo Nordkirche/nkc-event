@@ -7,50 +7,6 @@
 				</TCEforms>
 				<type>array</type>
 				<el>
-					<switchableControllerActions>
-						<TCEforms>
-							<label>Funktion wählen</label>
-							<onChange>reload</onChange>
-							<config>
-								<type>select</type>
-								<renderType>selectSingle</renderType>
-								<items>
-									<numIndex index="0">
-										<numIndex index="0">Liste von Veranstaltungen</numIndex>
-										<numIndex index="1">Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-									</numIndex>
-									<numIndex index="1">
-										<numIndex index="0">Suchformular für Veranstaltungen</numIndex>
-										<numIndex index="1">Event->searchForm</numIndex>
-									</numIndex>
-									<numIndex index="3">
-										<numIndex index="0">Detailansicht Veranstaltung</numIndex>
-										<numIndex index="1">Event->show;Event->export</numIndex>
-									</numIndex>
-									<numIndex index="4">
-										<numIndex index="0">Weiterleitung zur Event-Ansicht</numIndex>
-										<numIndex index="1">Event->redirect</numIndex>
-									</numIndex>
-								</items>
-								<default>Event->list;Event->search;Event->data;Event->paginatedData</default>
-							</config>
-						</TCEforms>
-					</switchableControllerActions>
-
-					<settings.flexform.eventCollection>
-						<TCEforms>
-							<label>Diese Veranstaltungen darstellen</label>
-							<config>
-								<type>user</type>
-								<renderType>napiItemSelector</renderType>
-								<allowed>event</allowed>
-								<minItems>0</minItems>
-								<maxItems>99</maxItems>
-								<size>10</size>
-							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->selection</displayCond>
-						</TCEforms>
-					</settings.flexform.eventCollection>
 
 					<settings.flexform.stream>
 						<TCEforms>
@@ -58,7 +14,6 @@
 							<config>
 								<type>check</type>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.stream>
 
@@ -106,7 +61,6 @@
 									</numIndex>
 								</items>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.eventTypes>
 
@@ -121,7 +75,6 @@
 								<maxItems>99</maxItems>
 								<size>10</size>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.institutionCollection>
 
@@ -136,7 +89,6 @@
 								<maxItems>1</maxItems>
 								<size>1</size>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.eventLocation>
 
@@ -152,7 +104,6 @@
 								<maxItems>99</maxItems>
 								<size>10</size>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.targetGroupCollection>
 
@@ -177,7 +128,6 @@
 								<minitems>0</minitems>
 								<maxitems>20</maxitems>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.categories>
 
@@ -199,7 +149,6 @@
 									</numIndex>
 								</items>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.categoryOperator>
 
@@ -211,7 +160,6 @@
 								<size>10</size>
 								<eval>date</eval>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.dateFrom>
 
@@ -223,7 +171,6 @@
 								<size>10</size>
 								<eval>date</eval>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.dateTo>
 
@@ -234,7 +181,6 @@
                                 <type>input</type>
                                 <size>3</size>
                             </config>
-                            <displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
                         </TCEforms>
                     </settings.flexform.numDays>
 
@@ -246,7 +192,6 @@
 								<type>check</type>
 								<default>0</default>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.geosearch>
 
@@ -258,12 +203,7 @@
 								<size>5</size>
 								<default></default>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="1">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-									<numIndex index="2">FIELD:settings.flexform.geosearch:=:1</numIndex>
-								</AND>
-							</displayCond>
+							<displayCond>FIELD:settings.flexform.geosearch:=:1</displayCond>
 						</TCEforms>
 					</settings.flexform.latitude>
 
@@ -275,12 +215,7 @@
 								<size>5</size>
 								<default></default>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="1">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-									<numIndex index="2">FIELD:settings.flexform.geosearch:=:1</numIndex>
-								</AND>
-							</displayCond>
+							<displayCond>FIELD:settings.flexform.geosearch:=:1</displayCond>
 						</TCEforms>
 					</settings.flexform.longitude>
 
@@ -292,12 +227,7 @@
 								<size>5</size>
 								<default></default>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="1">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-									<numIndex index="2">FIELD:settings.flexform.geosearch:=:1</numIndex>
-								</AND>
-							</displayCond>
+							<displayCond>FIELD:settings.flexform.geosearch:=:1</displayCond>
 						</TCEforms>
 					</settings.flexform.radius>
 				</el>
@@ -310,38 +240,6 @@
 				</TCEforms>
 				<type>array</type>
 				<el>
-
-					<settings.flexform.searchFormTemplate>
-						<TCEforms>
-							<label>Art des Suchformulars</label>
-							<onChange>reload</onChange>
-							<config>
-								<type>select</type>
-								<renderType>selectSingle</renderType>
-								<items>
-									<numIndex index="0">
-										<numIndex index="0">Normale Version</numIndex>
-										<numIndex index="1">Default</numIndex>
-									</numIndex>
-									<numIndex index="1">
-										<numIndex index="0">Service Flap: Veranstaltungen</numIndex>
-										<numIndex index="1">ServiceFlap</numIndex>
-									</numIndex>
-									<numIndex index="2">
-										<numIndex index="0">Service Flap: Kirchenmusik</numIndex>
-										<numIndex index="1">ServiceFlapConcerts</numIndex>
-									</numIndex>
-                                    <numIndex index="3">
-                                        <numIndex index="0">Gottesdienste (z.B. zur Verwendung im Teaser für die Gottesdienstsuche)</numIndex>
-                                        <numIndex index="1">ChurchServices</numIndex>
-                                    </numIndex>
-								</items>
-								<default>Default</default>
-							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->searchForm</displayCond>
-						</TCEforms>
-					</settings.flexform.searchFormTemplate>
-
 					<settings.flexform.header>
 						<TCEforms>
 							<label>Überschrift für Suchformular (optional)</label>
@@ -350,15 +248,6 @@
 								<size>30</size>
 								<default></default>
 							</config>
-							<displayCond>
-								<AND>
-									<OR>
-										<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-										<numIndex index="1">FIELD:sDEF.switchableControllerActions:=:Event->searchForm</numIndex>
-									</OR>
-									<numIndex index="1">FIELD:settings.flexform.searchFormTemplate:=:Default</numIndex>
-								</AND>
-							</displayCond>
 						</TCEforms>
 					</settings.flexform.header>
 
@@ -384,15 +273,6 @@
 								</items>
 								<default>2</default>
 							</config>
-							<displayCond>
-								<AND>
-									<OR>
-										<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-										<numIndex index="1">FIELD:sDEF.switchableControllerActions:=:Event->searchForm</numIndex>
-									</OR>
-									<numIndex index="1">FIELD:settings.flexform.searchFormTemplate:=:Default</numIndex>
-								</AND>
-							</displayCond>
 						</TCEforms>
 					</settings.flexform.header_layout>
 
@@ -405,7 +285,6 @@
 								<size>5</size>
 								<default></default>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.maxItems>
 
@@ -431,7 +310,6 @@
 									</numIndex>
 								</items>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.paginate.mode>
 
@@ -443,12 +321,7 @@
 								<size>5</size>
 								<default>25</default>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-									<numIndex index="1">FIELD:settings.flexform.paginate.mode:!=:0</numIndex>
-								</AND>
-							</displayCond>
+							<displayCond>FIELD:settings.flexform.paginate.mode:!=:0</displayCond>
 						</TCEforms>
 					</settings.flexform.paginate.itemsPerPage>
 
@@ -459,12 +332,7 @@
 								<type>check</type>
 								<default>0</default>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-									<numIndex index="1">FIELD:settings.flexform.paginate.mode:=:2</numIndex>
-								</AND>
-							</displayCond>
+							<displayCond>FIELD:settings.flexform.paginate.mode:=:2</displayCond>
 						</TCEforms>
 					</settings.flexform.paginate.insertAbove>
 
@@ -475,12 +343,7 @@
 								<type>check</type>
 								<default>1</default>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-									<numIndex index="1">FIELD:settings.flexform.paginate.mode:=:2</numIndex>
-								</AND>
-							</displayCond>
+							<displayCond>FIELD:settings.flexform.paginate.mode:=:2</displayCond>
 						</TCEforms>
 					</settings.flexform.paginate.insertBelow>
 
@@ -492,12 +355,7 @@
 								<size>5</size>
 								<default>5</default>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</numIndex>
-									<numIndex index="1">FIELD:settings.flexform.paginate.mode:=:2</numIndex>
-								</AND>
-							</displayCond>
+							<displayCond>FIELD:settings.flexform.paginate.mode:=:2</displayCond>
 						</TCEforms>
 					</settings.flexform.paginate.maximumNumberOfLinks>
 
@@ -508,7 +366,6 @@
 								<type>check</type>
 								<default>0</default>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.showMap>
 
@@ -519,7 +376,6 @@
 								<type>check</type>
 								<default>0</default>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.showFilter>
 
@@ -531,7 +387,6 @@
 								<rows>3</rows>
 								<cols>40</cols>
 							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->list;Event->search;Event->data;Event->paginatedData</displayCond>
 						</TCEforms>
 					</settings.flexform.errorMessage>
 
@@ -554,12 +409,7 @@
 								<rows>3</rows>
 								<cols>40</cols>
 							</config>
-							<displayCond>
-								<OR>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->searchForm</numIndex>
-									<numIndex index="1">FIELD:sTemplate.settings.flexform.showFilter:=:1</numIndex>
-								</OR>
-							</displayCond>
+							<displayCond>FIELD:sTemplate.settings.flexform.showFilter:=:1</displayCond>
 						</TCEforms>
 					</settings.filter.cityCollection>
 
@@ -575,12 +425,7 @@
 								<maxItems>99</maxItems>
 								<size>10</size>
 							</config>
-							<displayCond>
-								<OR>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->searchForm</numIndex>
-									<numIndex index="1">FIELD:sTemplate.settings.flexform.showFilter:=:1</numIndex>
-								</OR>
-							</displayCond>
+							<displayCond>FIELD:sTemplate.settings.flexform.showFilter:=:1</displayCond>
 						</TCEforms>
 					</settings.filter.institutionCollection>
 
@@ -604,12 +449,7 @@
 									</suggest>
 								</wizards>
 							</config>
-							<displayCond>
-								<OR>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->searchForm</numIndex>
-									<numIndex index="1">FIELD:sTemplate.settings.flexform.showFilter:=:1</numIndex>
-								</OR>
-							</displayCond>
+							<displayCond>FIELD:sTemplate.settings.flexform.showFilter:=:1</displayCond>
 						</TCEforms>
 					</settings.filter.pidDateFilter>
 
@@ -633,15 +473,9 @@
 									</suggest>
 								</wizards>
 							</config>
-							<displayCond>
-								<OR>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->searchForm</numIndex>
-									<numIndex index="1">FIELD:sTemplate.settings.flexform.showFilter:=:1</numIndex>
-								</OR>
-							</displayCond>
+							<displayCond>FIELD:sTemplate.settings.flexform.showFilter:=:1</displayCond>
 						</TCEforms>
 					</settings.filter.categoryCollection>
-
 				</el>
 			</ROOT>
 		</sFilter>
@@ -673,13 +507,6 @@
 									</suggest>
 								</wizards>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:!=:Event->show;Event->export</numIndex>
-									<numIndex index="1">FIELD:sDEF.switchableControllerActions:!=:Event->searchForm</numIndex>
-								</AND>
-							</displayCond>
-
 						</TCEforms>
 					</settings.flexform.pidSingle>
 
@@ -703,63 +530,8 @@
 									</suggest>
 								</wizards>
 							</config>
-							<displayCond>
-								<OR>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Event->show;Event->export</numIndex>
-									<numIndex index="1">FIELD:sDEF.switchableControllerActions:=:Event->searchForm</numIndex>
-								</OR>
-							</displayCond>
 						</TCEforms>
 					</settings.flexform.pidList>
-
-					<settings.flexform.pidInstitutionSingle>
-						<TCEforms>
-							<label>Seite für Einzelansicht von Institutionen</label>
-							<config>
-								<type>group</type>
-								<internal_type>db</internal_type>
-								<allowed>pages</allowed>
-								<size>1</size>
-								<maxitems>1</maxitems>
-								<minitems>0</minitems>
-								<show_thumbs>1</show_thumbs>
-								<wizards>
-									<suggest>
-										<type>suggest</type>
-										<default>
-											<searchWholePhrase>1</searchWholePhrase>
-										</default>
-									</suggest>
-								</wizards>
-							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->show;Event->export</displayCond>
-						</TCEforms>
-					</settings.flexform.pidInstitutionSingle>
-
-					<settings.flexform.pidPersonSingle>
-						<TCEforms>
-							<label>Seite für Einzelansicht von Personen</label>
-							<config>
-								<type>group</type>
-								<internal_type>db</internal_type>
-								<allowed>pages</allowed>
-								<size>1</size>
-								<maxitems>1</maxitems>
-								<minitems>0</minitems>
-								<show_thumbs>1</show_thumbs>
-								<wizards>
-									<suggest>
-										<type>suggest</type>
-										<default>
-											<searchWholePhrase>1</searchWholePhrase>
-										</default>
-									</suggest>
-								</wizards>
-							</config>
-							<displayCond>FIELD:sDEF.switchableControllerActions:=:Event->show;Event->export</displayCond>
-						</TCEforms>
-					</settings.flexform.pidPersonSingle>
-
 				</el>
 			</ROOT>
 		</sPages>

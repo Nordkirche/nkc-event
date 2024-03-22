@@ -1,29 +1,48 @@
 <?php
 
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+
 defined('TYPO3') || die('Access denied.');
 
 call_user_func(
     function () {
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
+        ExtensionUtility::registerPlugin(
             'NkcEvent',
-            'Main',
-            'Veranstaltungen'
+            'Show',
+            'Veranstaltung: Detailansicht'
         );
 
-        $pluginSignature = 'nkcevent_main';
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist'][$pluginSignature] = 'pi_flexform';
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue($pluginSignature, 'FILE:EXT:nkc_event/Configuration/FlexForms/flexform_main.xml');
+        ExtensionUtility::registerPlugin(
+            'NkcEvent',
+            'List',
+            'Veranstaltungen: Liste / Suchergebnis'
+        );
 
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
+        ExtensionUtility::registerPlugin(
+            'NkcEvent',
+            'SearchForm',
+            'Veranstaltungen: Suchmaske'
+        );
+
+        ExtensionUtility::registerPlugin(
+            'NkcEvent',
+            'Redirect',
+            'Veranstaltungen: Umleitung auf sprechende Url'
+        );
+
+        ExtensionUtility::registerPlugin(
             'NkcEvent',
             'Map',
-            'Karte mit Veranstaltungen darstellen'
+            'Veranstaltungen: Karte'
         );
 
-        $pluginSignature = 'nkcevent_map';
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist'][$pluginSignature] = 'pi_flexform';
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue($pluginSignature, 'FILE:EXT:nkc_event/Configuration/FlexForms/flexform_map.xml');
+        ExtensionUtility::registerPlugin(
+            'NkcEvent',
+            'MapList',
+            'Veranstaltungen: Karte und Liste'
+        );
 
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile('nkc_event', 'Configuration/TypoScript', 'Event Calendar');
+        ExtensionManagementUtility::addStaticFile('nkc_event', 'Configuration/TypoScript', 'Nordkirche Event Client');
     }
 );
