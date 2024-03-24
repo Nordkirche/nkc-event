@@ -127,7 +127,7 @@ class EventController extends BaseController
         $events = $this->eventRepository->get($query);
 
         // Get current cObj
-        $cObj = $this->configurationManager->getContentObject();
+        $cObj = $this->request->getAttribute('currentContentObject');
 
         // Check organizer
         if ($searchRequest->getOrganizer()) {
@@ -658,14 +658,6 @@ class EventController extends BaseController
     }
 
     /**
-     * initializeDataAction
-     */
-    public function initializeDataAction()
-    {
-        $this->defaultViewObjectName = JsonView::class;
-    }
-
-    /**
      * @param SearchRequest|null $searchRequest
      * @param int $forceReload
      * @return ResponseInterface
@@ -674,10 +666,8 @@ class EventController extends BaseController
      */
     public function dataAction(SearchRequest $searchRequest = null, int $forceReload = 0): ResponseInterface
     {
-        $this->view->setVariablesToRender(['json']);
-
         // Get current cObj
-        $cObj = $this->configurationManager->getContentObject();
+        $cObj = $this->request->getAttribute('currentContentObject');
 
         $query = new EventQuery();
 
@@ -736,14 +726,6 @@ class EventController extends BaseController
     }
 
     /**
-     * initializePaginatedDataAction
-     */
-    public function initializePaginatedDataAction()
-    {
-        $this->defaultViewObjectName = JsonView::class;
-    }
-
-    /**
      * @param SearchRequest $searchRequest
      * @param int $page
      * @param string $requestId
@@ -757,15 +739,11 @@ class EventController extends BaseController
             return $this->htmlResponse('[]');
         }
 
-        $result = [];
-
-        $this->view->setVariablesToRender(['json']);
-
         // Manually activation of pagination mode
         $this->settings['flexform']['paginate']['mode'] = 1;
 
         // Get current cObj
-        $cObj = $this->configurationManager->getContentObject();
+        $cObj = $this->request->getAttribute('currentContentObject');
 
         /** @var EventQuery $query */
         $query = new EventQuery();
@@ -794,16 +772,11 @@ class EventController extends BaseController
             $markerCounter = count($result['data']);
         }
 
-        if ($markerCounter > 0) {
-            $this->view->assign('json', $result);
-        } else {
+        if ($markerCounter == 0) {
             // Try to get paginated cache
             $mapMarkerJson = $cacheInstance->get($this->getCacheKey($cObj, $searchRequest) . '-' . $requestId . '-' . $page);
 
-            if (trim($mapMarkerJson)) {
-                $result = json_decode($mapMarkerJson, true);
-                $this->view->assign('json', $result);
-            } else {
+            if (!trim($mapMarkerJson)) {
                 // Set pagination parameters
                 $query->setPageNumber($page);
 
@@ -830,12 +803,10 @@ class EventController extends BaseController
                 $mapMarkerJson = json_encode(['crdate' => time(), 'data' => $mapMarkers]);
 
                 $cacheInstance->set($this->getCacheKey($cObj, $searchRequest) . '-' . $requestId . '-' . $page, $mapMarkerJson);
-
-                $this->view->assign('json', ['data' => $mapMarkers]);
             }
         }
 
-        return $this->jsonResponse(json_encode(['data' => $mapMarkers]));
+        return $this->jsonResponse($mapMarkerJson);
     }
 
     /**
@@ -943,7 +914,7 @@ class EventController extends BaseController
         $mapMarker = $event ? $this->getMapMarker($event) : [];
 
         // Get current cObj
-        $cObj = $this->configurationManager->getContentObject();
+        $cObj = $this->request->getAttribute('currentContentObject');
 
         $assignedValues = [
             'event' => $event,

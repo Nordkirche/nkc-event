@@ -79,7 +79,7 @@ class MapController extends BaseController
     private function createView($currentPage = 1)
     {
         // Get current cObj
-        $cObj = $this->configurationManager->getContentObject();
+        $cObj = $this->request->getAttribute('currentContentObject');
 
         /** @var EventQuery $query */
         $query = $this->getEventQuery($currentPage);
@@ -89,7 +89,7 @@ class MapController extends BaseController
         if ($limit) {
             // Too many objects: async loading
 
-            $cObj = $this->configurationManager->getContentObject();
+            $cObj = $this->request->getAttribute('currentContentObject');
 
             if (empty($this->settings['flexform']['stream'])) {
                 // In einem Rutsch nachladen
@@ -124,23 +124,13 @@ class MapController extends BaseController
     }
 
     /**
-     * initializeDataAction
-     */
-    public function initializeDataAction()
-    {
-        $this->defaultViewObjectName = JsonView::class;
-    }
-
-    /**
      * @param int $forceReload
      * @return string
      */
     public function dataAction($forceReload = 0): ResponseInterface
     {
-        $this->view->setVariablesToRender(['json']);
-
         // Get current cObj
-        $cObj = $this->configurationManager->getContentObject();
+        $cObj = $this->request->getAttribute('currentContentObject');
 
         $cacheInstance = GeneralUtility::makeInstance(CacheManager::class)->getCache('tx_nkgooglemaps');
 
@@ -219,44 +209,31 @@ class MapController extends BaseController
     }
 
     /**
-     * initializePaginatedDataAction
-     */
-    public function initializePaginatedDataAction()
-    {
-        $this->defaultViewObjectName = JsonView::class;
-    }
-
-    /**
      * @param int $page
      * @return string
      */
     public function paginatedDataAction($page = 1): ResponseInterface
     {
-        $this->view->setVariablesToRender(['json']);
-
         // Manually activation of pagination mode
         $this->settings['flexform']['paginate']['mode'] = 1;
 
         // Get current cObj
-        $cObj = $this->configurationManager->getContentObject();
+        $cObj = $this->request->getAttribute('currentContentObject');
 
         $cacheInstance = GeneralUtility::makeInstance(CacheManager::class)->getCache('tx_nkgooglemaps');
 
         $mapMarkerJson = $cacheInstance->get($this->getCacheKey($cObj));
 
-        if (trim($mapMarkerJson)) {
-            $this->view->assignMultiple(['json' => json_decode($mapMarkerJson, true)]);
-        } else {
+        if (!trim($mapMarkerJson)) {
             /** @var EventQuery $query */
             $query = $this->getEventQuery($page);
 
             list($limit, $mapItems) = $this->getMapItems($query, $this->settings, false);
 
-            $mapMarkers = $this->createMarkers($mapItems);
-
-            $this->view->assignMultiple(['json' => ['data' => $mapMarkers]]);
+            $mapMarkerJson = json_encode(['crdate' => time(), 'data' => $this->createMarkers($mapItems)]);
         }
-        return $this->htmlResponse();
+
+        return $this->jsonResponse($mapMarkerJson);
     }
 
     /**
