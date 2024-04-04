@@ -99,7 +99,6 @@ class PluginUpdater implements UpgradeWizardInterface
             $flexForm = $this->flexFormService->convertFlexFormContentToArray($record['pi_flexform']);
             $targetListType = $this->getTargetListType($flexForm['switchableControllerActions'] ?? '');
             if ($targetListType === '') {
-                die('Did not find :' . $flexForm['switchableControllerActions']);
                 continue;
             }
             $allowedSettings = $this->getAllowedSettingsFromFlexForm($targetListType);
