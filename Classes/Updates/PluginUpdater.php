@@ -9,7 +9,6 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
 use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 
