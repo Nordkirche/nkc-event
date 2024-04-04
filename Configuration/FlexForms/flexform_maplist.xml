@@ -268,12 +268,7 @@
 								<size>5</size>
 								<default>25</default>
 							</config>
-							<displayCond>
-								<AND>
-									<numIndex index="0">FIELD:sDEF.switchableControllerActions:=:Map->list;Map->data;Map->paginatedData</numIndex>
-									<numIndex index="1">FIELD:settings.flexform.paginate.mode:!=:0</numIndex>
-								</AND>
-							</displayCond>
+							<displayCond>FIELD:settings.flexform.paginate.mode:!=:0</displayCond>
 						</TCEforms>
 					</settings.flexform.paginate.itemsPerPage>
 

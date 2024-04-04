@@ -217,17 +217,6 @@
 				</el>
 			</ROOT>
 		</sMarker>
-		<sTemplate>
-			<ROOT>
-				<TCEforms>
-					<sheetTitle>Ausgabe</sheetTitle>
-				</TCEforms>
-				<type>array</type>
-				<el>
-
-				</el>
-			</ROOT>
-		</sTemplate>
 		<sPages>
 			<ROOT>
 				<TCEforms>

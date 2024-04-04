@@ -9,6 +9,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
 use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 
@@ -17,7 +18,7 @@ class PluginUpdater implements UpgradeWizardInterface
     private const MIGRATION_SETTINGS = [
         [
             'switchableControllerActions' => 'Event->list;Event->search;Event->data;Event->paginatedData',
-            'targetListType' => 'nkcevent_main',
+            'targetListType' => 'nkcevent_list',
         ],
         [
             'switchableControllerActions' => 'Event->searchForm',
@@ -98,6 +99,7 @@ class PluginUpdater implements UpgradeWizardInterface
             $flexForm = $this->flexFormService->convertFlexFormContentToArray($record['pi_flexform']);
             $targetListType = $this->getTargetListType($flexForm['switchableControllerActions'] ?? '');
             if ($targetListType === '') {
+                die('Did not find :' . $flexForm['switchableControllerActions']);
                 continue;
             }
             $allowedSettings = $this->getAllowedSettingsFromFlexForm($targetListType);
@@ -167,11 +169,11 @@ class PluginUpdater implements UpgradeWizardInterface
 
     protected function getAllowedSettingsFromFlexForm(string $listType): array
     {
-        if (!isset($GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds']['*,' . $listType])) {
+        if (!isset($GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'][$listType.',list'])) {
             return [];
         }
 
-        $flexFormFile = $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds']['*,' . $listType];
+        $flexFormFile = $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'][$listType.',list'];
         $flexFormContent = file_get_contents(GeneralUtility::getFileAbsFileName(substr(trim($flexFormFile), 5)));
         $flexFormData = GeneralUtility::xml2array($flexFormContent);
 
@@ -190,15 +192,14 @@ class PluginUpdater implements UpgradeWizardInterface
      * Updates list_type and pi_flexform of the given content element UID
      *
      * @param int $uid
-     * @param string $newCtype
+     * @param string $newListType
      * @param string $flexform
      */
-    protected function updateContentElement(int $uid, string $newCtype, string $flexform): void
+    protected function updateContentElement(int $uid, string $newListType, string $flexform): void
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
         $queryBuilder->update('tt_content')
-            ->set('CType', $newCtype)
-            ->set('list_type', '')
+            ->set('list_type', $newListType)
             ->set('pi_flexform', $flexform)
             ->where(
                 $queryBuilder->expr()->in(

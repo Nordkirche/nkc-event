@@ -25,7 +25,7 @@ class PluginPermissionUpdater implements UpgradeWizardInterface
 
     public function getDescription(): string
     {
-        $description = 'This update wizard updates all permissions and allows **all** event plugins instead of the previous two plugins.';
+        $description = 'This update wizard updates all permissions for the event plugins.';
         $description .= ' Count of affected groups: ' . count($this->getMigrationRecords());
         return $description;
     }
@@ -90,16 +90,16 @@ class PluginPermissionUpdater implements UpgradeWizardInterface
 
     protected function updateRow(array $row): void
     {
-        $defaultMain = 'tt_content:CType:nkcevent_list,tt_content:CType:nkcevent_show,tt_content:CType:nkcevent_searchform';
-        $defaultMap = 'tt_content:CType:nkcevent_map,tt_content:CType:nkcevent_maplist';
+        $defaultMain = 'tt_content:list_type:nkcevent_list,tt_content:list_type:nkcevent_show,tt_content:list_type:nkcevent_searchform';
+        $defaultMap = 'tt_content:list_type:nkcevent_map,tt_content:list_type:nkcevent_maplist';
 
         $searchReplace = [
-            'tt_content:list_type:tx_nkcevent_main:ALLOW' => $defaultMain,
-            'tt_content:list_type:tx_nkcevent_main:DENY' => '',
-            'tt_content:list_type:tx_nkcevent_main' => $defaultMain,
-            'tt_content:list_type:tx_nkcevent_map:ALLOW' => $defaultMap,
-            'tt_content:list_type:tx_nkcevent_map:DENY' => '',
-            'tt_content:list_type:tx_nkcevent_map' => $defaultMap,
+            'tt_content:list_type:nkcevent_main:ALLOW' => $defaultMain,
+            'tt_content:list_type:nkcevent_main:DENY' => '',
+            'tt_content:list_type:nkcevent_main' => $defaultMain,
+            'tt_content:list_type:nkcevent_map:ALLOW' => $defaultMap,
+            'tt_content:list_type:nkcevent_map:DENY' => '',
+            'tt_content:list_type:nkcevent_map' => $defaultMap,
         ];
 
         $newList = str_replace(array_keys($searchReplace), array_values($searchReplace), $row['explicit_allowdeny']);

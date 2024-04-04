@@ -141,6 +141,8 @@ call_user_func(
                    }'
         );
 
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['pageNotFoundOnCHashError'] = 0;
+
         // Register Upgrade wizards
         $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['txNkcEventPluginUpdater'] = \Nordkirche\NkcEvent\Updates\PluginUpdater::class;
         $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['txNkcEventPluginPermissionUpdater'] = \Nordkirche\NkcEvent\Updates\PluginPermissionUpdater::class;
