@@ -27,6 +27,7 @@ use Nordkirche\NkcEvent\Event\ModifyAssignedValuesEvent;
 use Nordkirche\NkcEvent\Event\ModifyEventQueryEvent;
 use Nordkirche\NkcEvent\Service\ExportService;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -34,7 +35,6 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Domain\Model\Category;
 use TYPO3\CMS\Extbase\Http\ForwardResponse;
-use TYPO3\CMS\Extbase\Mvc\View\JsonView;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
@@ -70,6 +70,15 @@ class EventController extends BaseController
      */
     protected $standaloneView;
 
+    /**
+     * @var ServerRequestInterface
+     */
+    protected $middleWareRequest;
+
+    /**
+     * @return void
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
+     */
     public function initializeAction()
     {
         parent::initializeAction();
@@ -461,9 +470,12 @@ class EventController extends BaseController
             $this->standaloneView->setTemplate($template);
         }
 
-        $this->standaloneView->assignMultiple(['event' 	    => $event,
+        $this->standaloneView->assignMultiple([
+                                                'event' 	    => $event,
                                                 'addConfig'     => $addConfig,
                                                 'settings'	    => $this->settings]);
+
+        $this->standaloneView->setRequest($this->middleWareRequest);
 
         return $this->standaloneView->render();
     }
@@ -981,11 +993,28 @@ class EventController extends BaseController
         }
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @return void
+     */
+    public function setMiddleWareRequest(ServerRequestInterface  $request)
+    {
+        $this->middleWareRequest = $request;
+    }
+
+    /**
+     * @param FilterDateRepository $filterDateRepository
+     * @return void
+     */
     public function injectFilterDateRepository(FilterDateRepository $filterDateRepository): void
     {
         $this->filterDateRepository = $filterDateRepository;
     }
 
+    /**
+     * @param CategoryRepository $categoryRepository
+     * @return void
+     */
     public function injectCategoryRepository(CategoryRepository $categoryRepository): void
     {
         $this->categoryRepository = $categoryRepository;
