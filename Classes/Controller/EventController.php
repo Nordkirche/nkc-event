@@ -76,7 +76,6 @@ class EventController extends BaseController
     protected $middleWareRequest;
 
     /**
-     * @return void
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
      */
     public function initializeAction()
@@ -995,16 +994,14 @@ class EventController extends BaseController
 
     /**
      * @param ServerRequestInterface $request
-     * @return void
      */
-    public function setMiddleWareRequest(ServerRequestInterface  $request)
+    public function setMiddleWareRequest(ServerRequestInterface $request)
     {
         $this->middleWareRequest = $request;
     }
 
     /**
      * @param FilterDateRepository $filterDateRepository
-     * @return void
      */
     public function injectFilterDateRepository(FilterDateRepository $filterDateRepository): void
     {
@@ -1013,7 +1010,6 @@ class EventController extends BaseController
 
     /**
      * @param CategoryRepository $categoryRepository
-     * @return void
      */
     public function injectCategoryRepository(CategoryRepository $categoryRepository): void
     {

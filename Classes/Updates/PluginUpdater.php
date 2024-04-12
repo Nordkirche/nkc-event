@@ -38,7 +38,7 @@ class PluginUpdater implements UpgradeWizardInterface
         [
             'switchableControllerActions' => 'Map->list;Map->data;Map->paginatedData',
             'targetListType' => 'nkcevent_maplist',
-        ]
+        ],
     ];
 
     /** @var FlexFormService */
@@ -167,11 +167,11 @@ class PluginUpdater implements UpgradeWizardInterface
 
     protected function getAllowedSettingsFromFlexForm(string $listType): array
     {
-        if (!isset($GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'][$listType.',list'])) {
+        if (!isset($GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'][$listType . ',list'])) {
             return [];
         }
 
-        $flexFormFile = $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'][$listType.',list'];
+        $flexFormFile = $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'][$listType . ',list'];
         $flexFormContent = file_get_contents(GeneralUtility::getFileAbsFileName(substr(trim($flexFormFile), 5)));
         $flexFormData = GeneralUtility::xml2array($flexFormContent);
 

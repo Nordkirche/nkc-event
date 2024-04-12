@@ -13,7 +13,6 @@ use Nordkirche\NkcBase\Service\ApiService;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Mvc\View\JsonView;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class MapController extends BaseController

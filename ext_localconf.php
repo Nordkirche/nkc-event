@@ -146,6 +146,5 @@ call_user_func(
         // Register Upgrade wizards
         $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['txNkcEventPluginUpdater'] = \Nordkirche\NkcEvent\Updates\PluginUpdater::class;
         $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['txNkcEventPluginPermissionUpdater'] = \Nordkirche\NkcEvent\Updates\PluginPermissionUpdater::class;
-
     }
 );
