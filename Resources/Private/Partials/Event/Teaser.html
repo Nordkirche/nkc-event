@@ -14,7 +14,7 @@
 
     <f:if condition="{event.picture}">
         <f:then>
-            <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}">
+            <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}">
                 <img title="{event.title}" alt="" src="{n:uri.image(image: event.picture, width: '275c', height: '183c')}" />
             </f:link.page>
         </f:then>
@@ -23,7 +23,7 @@
     <f:image src="{settings.monthIcon}" alt="" />
 
     <h2>
-        <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}">
+        <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}">
             {event.title}
         </f:link.page>
     </h2>
@@ -49,7 +49,7 @@
     </f:else>
 </f:if>
     </p>
-    <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}" class="search-result__link">&nbsp;</f:link.page>
+    <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}" class="search-result__link">&nbsp;</f:link.page>
 
 </html>
 

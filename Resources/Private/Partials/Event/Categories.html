@@ -3,7 +3,7 @@
     <p>
         <f:for each="{event.categories}" as="category" iteration="iterator">
             <f:if condition="{iterator.index} > 0">|</f:if>
-            <f:link.page pageUid="{settings.flexform.pidList}" additionalParams="{tx_nkcevent_main: {searchRequest: {search: category.name}}}">{category.name}</f:link.page>
+            <f:link.page pageUid="{settings.flexform.pidList}" additionalParams="{tx_nkcevent_list: {searchRequest: {search: category.name}}}">{category.name}</f:link.page>
         </f:for>
     </p>
 </f:if>

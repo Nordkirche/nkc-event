@@ -101,7 +101,7 @@ class EventController extends BaseController
      * @param SearchRequest $searchRequest
      * @throws ApiException
      */
-    public function listAction($currentPage = 1, $searchRequest = null): ResponseInterface
+    public function listAction(int $currentPage = 1, SearchRequest $searchRequest = null): ResponseInterface
     {
         $requestUri = '';
 
