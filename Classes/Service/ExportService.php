@@ -11,7 +11,7 @@ class ExportService implements SingletonInterface
     /**
      * Prefix for iCalendar files
      */
-    const VCALENDAR_START = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:netl_events TYPO3 Extension\nMETHOD:PUBLISH";
+    const VCALENDAR_START = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:nkc_event TYPO3 Extension\nMETHOD:PUBLISH";
 
     /**
      * Postfix for iCalendar files
@@ -71,7 +71,12 @@ class ExportService implements SingletonInterface
 
         $iCalData[] = 'BEGIN:VEVENT';
         $iCalData[] = 'UID:' . self::getUniqueIdentifier($event);
-        $iCalData[] = 'LOCATION:' . self::escapeTextForIcal($event->getLocationName());
+
+        if ($event->getDigitalType() && $event->getDigitalUrl()) {
+            $iCalData[] = 'LOCATION:' . $event->getDigitalUrl();
+        } else {
+            $iCalData[] = 'LOCATION:' . self::escapeTextForIcal($event->getLocationName());
+        }
         $iCalData[] = 'SUMMARY:' . self::escapeTextForIcal($event->getTitle());
         $iCalData[] = 'DESCRIPTION:' . self::escapeTextForIcal($event->getDescription());
         $iCalData[] = 'CLASS:PUBLIC';
@@ -82,6 +87,8 @@ class ExportService implements SingletonInterface
         $iCalData[] = 'DTSTAMP:' . $now->format('Ymd\THis\Z');
 
         $iCalData[] = 'END:VEVENT';
+
+        $iCalData[] = '';
 
         return implode("\r\n", $iCalData);
     }
