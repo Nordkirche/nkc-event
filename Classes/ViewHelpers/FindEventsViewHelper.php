@@ -51,6 +51,8 @@ class FindEventsViewHelper extends AbstractViewHelper
             $query->setQuery($this->arguments['search']);
         }
 
+        $query->setTimeFromStart(new \DateTime(date('Y-m-d')));
+
         $events = $eventRepository->get($query);
 
         if ($events->count()) {
