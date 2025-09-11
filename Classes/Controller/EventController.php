@@ -218,8 +218,7 @@ class EventController extends BaseController
         $this->setTargetGroupFilter($query, !empty($flexform['targetGroupCollection']) ? $flexform['targetGroupCollection'] : null);
 
         if (!empty($flexform['eventTypes'])) {
-            $eventTypes = GeneralUtility::trimExplode(',', $flexform['eventTypes']);
-            $query->setEventType($eventTypes[0]);
+            $query->setEventTypes(GeneralUtility::trimExplode(',', $flexform['eventTypes']));
         }
 
         if (!empty($flexform['eventLocation'])) {
