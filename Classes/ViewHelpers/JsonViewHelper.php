@@ -1,6 +1,8 @@
 <?php
 
-namespace  Nordkirche\NkcEvent\ViewHelpers;
+declare(strict_types=1);
+
+namespace Nordkirche\NkcEvent\ViewHelpers;
 
 use Nordkirche\Ndk\Domain\Model\Address;
 use Nordkirche\Ndk\Domain\Model\Event\Event;
@@ -20,16 +22,15 @@ class JsonViewHelper extends AbstractViewHelper
      *
      * @throws Exception
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
-        parent::initializeArguments();
         $this->registerArgument('event', 'object', 'Event object', false);
     }
 
     /**
      * @return string
      */
-    public function render()
+    public function render(): string
     {
         /** @var Event $event */
         $event = $this->arguments['event'];
@@ -40,7 +41,7 @@ class JsonViewHelper extends AbstractViewHelper
 
         if ($event instanceof Event) {
             if ($event->getPicture() instanceof Image) {
-                $image = $event->getPicture()->render(600);
+                $image = $event->getPicture()->render('600');
             } else {
                 $image = '';
             }
@@ -81,8 +82,8 @@ class JsonViewHelper extends AbstractViewHelper
                 }
             }
 
-            return json_encode($result);
+            return (string)json_encode($result);
         }
-        return json_encode([]);
+        return (string)json_encode([]);
     }
 }

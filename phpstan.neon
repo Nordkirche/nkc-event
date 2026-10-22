@@ -1,0 +1,32 @@
+parameters:
+	level: 5
+	treatPhpDocTypesAsCertain: false
+	paths:
+		- Classes
+		- Configuration
+	excludePaths:
+		- .build
+	ignoreErrors:
+		# The NDK documents integer ids, the filters also accept strings
+		-
+			identifier: argument.type
+			message: '#^Parameter \#1 \$\w+ of method Nordkirche\\Ndk\\Domain\\Query\\\w+Query::set\w+\(\) expects array<int>, (list<string>|array<int, string>|array<string>) given\.$#'
+			reportUnmatched: false
+		# Base class depends on the TYPO3 version (class_alias)
+		-
+			message: '#AbstractListTypeToCTypeUpdateCompat#'
+			path: Classes/Upgrades/ListTypeToCTypeUpdate.php
+		# Invalid docblock in the NDK (@param \\string[])
+		-
+			message: '#EventQuery::setCities\(\) expects array<string>#'
+			reportUnmatched: false
+		# Version switches between TYPO3 v13 and v14
+		-
+			message: '#SystemResource\\(SystemResourceFactory|Publishing\\SystemResourcePublisherInterface)#'
+			reportUnmatched: false
+		-
+			message: '#ExtensionUtility::registerPlugin\(\) invoked with 7 parameters#'
+			reportUnmatched: false
+		-
+			message: '#AbstractListTypeToCTypeUpdateCompat#'
+			reportUnmatched: false

@@ -1,0 +1,39 @@
+# Readable URLs of the event plugins. TYPO3 14 loads this file with the site set,
+# under TYPO3 13 nkc_base merges it (SetRouteEnhancers listener).
+# Sites can override every value with the same enhancer key in their config.yaml.
+routeEnhancers:
+  NkcEventShow:
+    type: NkcExtbase
+    extension: NkcEvent
+    plugin: Show
+    defaultController: 'Event::show'
+    routes:
+      - { routePath: '/{event}', _controller: 'Event::show', _arguments: { event: uid } }
+      - { routePath: '/{event}/ical', _controller: 'Event::export', _arguments: { event: uid } }
+    aspects:
+      event:
+        type: GenericMapper
+        mapper: nkc_base
+        object: event
+        routeFieldResult: '{title}'
+
+  NkcEventList:
+    type: NkcExtbase
+    extension: NkcEvent
+    plugin: List
+    defaultController: 'Event::list'
+    routes:
+      - { routePath: '/seite/{currentPage}', _controller: 'Event::list' }
+      - { routePath: '/suche', _controller: 'Event::search' }
+    aspects:
+      currentPage: { type: StaticRangeMapper, start: '1', end: '1000' }
+
+  NkcEventMapList:
+    type: NkcExtbase
+    extension: NkcEvent
+    plugin: MapList
+    defaultController: 'Map::list'
+    routes:
+      - { routePath: '/seite/{currentPage}', _controller: 'Map::list' }
+    aspects:
+      currentPage: { type: StaticRangeMapper, start: '1', end: '1000' }

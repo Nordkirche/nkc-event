@@ -3,8 +3,9 @@ plugin.tx_nkcevent {
     view {
         templateRootPaths.0 = EXT:nkc_event/Resources/Private/Templates/
         templateRootPaths.1 = {$plugin.tx_nkcevent_main.view.templateRootPath}
-        partialRootPaths.0 = EXT:nkc_event/Resources/Private/Partials/
-        partialRootPaths.1 = {$plugin.tx_nkcevent_main.view.partialRootPath}
+        partialRootPaths.0 = EXT:nkc_base/Resources/Private/Partials/
+        partialRootPaths.5 = EXT:nkc_event/Resources/Private/Partials/
+        partialRootPaths.10 = {$plugin.tx_nkcevent_main.view.partialRootPath}
         layoutRootPaths.0 = EXT:nkc_event/Resources/Private/Layouts/
         layoutRootPaths.1 = {$plugin.tx_nkcevent_main.view.layoutRootPath}
     }
@@ -12,17 +13,21 @@ plugin.tx_nkcevent {
         storagePid = {$plugin.tx_nkcevent_main.persistence.storagePid}
         #recursive = 1
     }
-    features {
-        skipDefaultArguments = 1
-    }
     mvc {
         callDefaultActionIfActionCantBeResolved = 1
     }
 
     settings {
-        socialMediaChannels < plugin.tx_nkcaddress_person.settings.socialMediaChannels
+        socialMediaChannels {
+            0 = twitter
+            1 = facebook
+            2 = xing
+            3 = instagram
+            4 = pinterest
+            5 = flickr
+        }
 
-        eventIconName = EXT:nkc_base/Resources/Public/MapIcons/event_%s.svg
+        eventIconName = {$plugin.tx_nkcevent.settings.eventIconName}
 
         monthIcon = EXT:nkc_base/Resources/Public/Icons/icon_calendar_month.svg
 
@@ -33,13 +38,13 @@ plugin.tx_nkcevent {
         # Der Kurzlink wird für Links von außen verwendet.
         # Unter diesem Pfad sollte das Plugin mit der Action redirect liegen.
         # Es leitet dann auf die Event-Detail Ansicht um
-        shortLink = /event/?nkce=
+        shortLink = {$plugin.tx_nkcevent.settings.eventShortLink}
 
         # NAPI category Id für digitale Veranstaltungen
-        digitalEventCategoryId = 606,647
+        digitalEventCategoryId = {$plugin.tx_nkcevent.settings.digitalEventCategoryId}
 
         # NAPI category Id für hybride Veranstaltungen
-        hybridEventCategoryId = 646
+        hybridEventCategoryId = {$plugin.tx_nkcevent.settings.hybridEventCategoryId}
 
         mapping {
             eventType {
@@ -156,13 +161,15 @@ plugin.tx_nkcevent {
 plugin.tx_nkcevent_show < plugin.tx_nkcevent
 plugin.tx_nkcevent_list < plugin.tx_nkcevent
 plugin.tx_nkcevent_searchform < plugin.tx_nkcevent
+plugin.tx_nkcevent_redirect < plugin.tx_nkcevent
 
 plugin.tx_nkcevent_map {
     view {
         templateRootPaths.0 = EXT:nkc_event/Resources/Private/Templates/
         templateRootPaths.1 = {$plugin.tx_nkcevent_map.view.templateRootPath}
-        partialRootPaths.0 = EXT:nkc_event/Resources/Private/Partials/
-        partialRootPaths.1 = {$plugin.tx_nkcevent_map.view.partialRootPath}
+        partialRootPaths.0 = EXT:nkc_base/Resources/Private/Partials/
+        partialRootPaths.5 = EXT:nkc_event/Resources/Private/Partials/
+        partialRootPaths.10 = {$plugin.tx_nkcevent_map.view.partialRootPath}
         layoutRootPaths.0 = EXT:nkc_event/Resources/Private/Layouts/
         layoutRootPaths.1 = {$plugin.tx_nkcevent_map.view.layoutRootPath}
     }
@@ -170,32 +177,22 @@ plugin.tx_nkcevent_map {
         storagePid = {$plugin.tx_nkcevent_map.persistence.storagePid}
         #recursive = 1
     }
-    features {
-        #skipDefaultArguments = 1
-        # if set to 1, the enable fields are ignored in BE context
-        ignoreAllEnableFieldsInBe = 0
-        # Should be on by default, but can be disabled if all action in the plugin are uncached
-        requireCHashArgumentForActionArguments = 1
-    }
-    mvc {
-        #callDefaultActionIfActionCantBeResolved = 1
-    }
 
     settings {
 
-        eventIconName < plugin.tx_nkcevent_main.settings.eventIconName
+        eventIconName < plugin.tx_nkcevent.settings.eventIconName
 
-        mapping < plugin.tx_nkcevent_main.settings.mapping
+        mapping < plugin.tx_nkcevent.settings.mapping
 
-        digitalEventCategoryId < plugin.tx_nkcevent_main.settings.digitalEventCategoryId
+        digitalEventCategoryId < plugin.tx_nkcevent.settings.digitalEventCategoryId
 
-        hybridEventCategoryId < plugin.tx_nkcevent_main.settings.hybridEventCategoryId
+        hybridEventCategoryId < plugin.tx_nkcevent.settings.hybridEventCategoryId
 
         ajaxTypeNum = {$plugin.tx_nkcevent_map.ajaxTypeNum}
 
         ajaxListTypeNum = {$plugin.tx_nkcevent_main.ajaxTypeNum}
 
-        monthIcon = /typo3conf/ext/nkc_base/Resources/Public/Icons/icon_calendar_month.svg
+        monthIcon = EXT:nkc_base/Resources/Public/Icons/icon_calendar_month.svg
 
         maxItems = 50
 
@@ -221,7 +218,7 @@ plugin.tx_nkcevent_map {
 plugin.tx_nkcevent_maplist < plugin.tx_nkcevent_map
 
 
-[getTSFE() && getTSFE().type == {$plugin.tx_nkcevent_main.ajaxTypeNum}]
+[request.getPageArguments() && request.getPageArguments().getPageType() == '{$plugin.tx_nkcevent_main.ajaxTypeNum}']
     lib.contentElement.settings.additionalConfig.plainResult = 1
 [global]
 
@@ -232,7 +229,6 @@ ajaxEvents {
 
     config {
         disableAllHeaderCode = 1
-        disableCharsetHeader = 1
         disablePrefixComment = 1
     }
 
@@ -248,7 +244,7 @@ ajaxEvents {
     }
 }
 
-[getTSFE() && getTSFE().type == {$plugin.tx_nkcevent_map.ajaxTypeNum}]
+[request.getPageArguments() && request.getPageArguments().getPageType() == '{$plugin.tx_nkcevent_map.ajaxTypeNum}']
     lib.contentElement.settings.additionalConfig.plainResult = 1
 [global]
 
@@ -258,8 +254,11 @@ mapEventData {
 
     config {
         disableAllHeaderCode = 1
-        disableCharsetHeader = 1
         disablePrefixComment = 1
+        additionalHeaders.10 {
+            header = Content-Type: application/json; charset=utf-8
+            replace = 1
+        }
     }
 
     10 = CONTENT
@@ -273,3 +272,7 @@ mapEventData {
         }
     }
 }
+
+
+# Upcoming events in the institution business card of nkc_address
+plugin.tx_nkcaddress_institution.view.partialRootPaths.7 = EXT:nkc_event/Resources/Private/Partials/NkcAddress/

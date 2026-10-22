@@ -1,14 +1,13 @@
 <html xmlns:n="http://typo3.org/ns/Nordkirche/NkcBase/ViewHelpers"
       xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers"
-      xmlns:v="http://typo3.org/ns/FluidTYPO3/Vhs/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
     <f:if condition="{settings.flexform.pidSingle}">
         <f:then>
-            <v:variable.set name="pidSingle" value="{settings.flexform.pidSingle}" />
+            <f:variable name="pidSingle" value="{settings.flexform.pidSingle}" />
         </f:then>
         <f:else>
-            <v:variable.set name="pidSingle" value="{settings.flexform.pidEventSingle}" />
+            <f:variable name="pidSingle" value="{settings.flexform.pidEventSingle}" />
         </f:else>
     </f:if>
 
@@ -29,14 +28,14 @@
     </h2>
 
     <p>
-        <v:render.template file="EXT:nkc_event/Resources/Private/Partials/Event/DateShort.html" variables="{event: event}" />
+        <f:render partial="Event/DateShort" arguments="{event: event}" />
     </p>
 
     <p>
         {event.locationName}
     </p>
     <p>
-        <v:render.template file="EXT:nkc_event/Resources/Private/Partials/Event/AddressShort.html" variables="{address: event.address}" />
+        <f:render partial="Event/AddressShort" arguments="{address: event.address}" />
     </p>
 
     <p>

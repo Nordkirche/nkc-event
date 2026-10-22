@@ -222,7 +222,12 @@ class SearchRequest
             $result = new \DateTime();
             $result->setTimestamp($date);
         } elseif (is_string($date) && $date != '') {
-            $result = new \DateTime($date);
+            try {
+                $result = new \DateTime($date);
+            } catch (\Exception) {
+                // Invalid input of the search form
+                return null;
+            }
             $result->setTimezone(new \DateTimeZone('Europe/Berlin'));
             if ($setTimeToEndOfDay) {
                 $result->setTime(23, 59, 59);

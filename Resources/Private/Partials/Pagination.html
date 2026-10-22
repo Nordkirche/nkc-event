@@ -3,7 +3,7 @@
 	<f:if condition="{pagination}">
 		<ul>
 			<f:if condition="{pagination.prev}">
-				<li><f:link.action action="list" arguments="{currentPage: pagination.prev.index}">Zurück</f:link.action></li>
+				<li><f:link.action action="list" arguments="{currentPage: pagination.prev.index, searchRequest: searchRequest.array}">Zurück</f:link.action></li>
 			</f:if>
 			<f:for each="{pagination.pages}" as="page">
 				<li>
@@ -12,13 +12,13 @@
 							{page.index}
 						</f:then>
 						<f:else>
-							<f:link.action action="list" arguments="{currentPage: page.index}">{page.index}</f:link.action>
+							<f:link.action action="list" arguments="{currentPage: page.index, searchRequest: searchRequest.array}">{page.index}</f:link.action>
 						</f:else>
 					</f:if>
 				</li>
 			</f:for>
 			<f:if condition="{pagination.next}">
-				<li><f:link.action action="list" arguments="{currentPage: pagination.next.index}">Weiter</f:link.action></li>
+				<li><f:link.action action="list" arguments="{currentPage: pagination.next.index, searchRequest: searchRequest.array}">Weiter</f:link.action></li>
 			</f:if>
 		</ul>
 	</f:if>

@@ -1,0 +1,13 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:nke="http://typo3.org/ns/Nordkirche/NkcEvent/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+<f:comment>Upcoming events of an institution, rendered in the institution business card of nkc_address</f:comment>
+<nke:findEvents institution="{institution.id}">
+    <f:if condition="{events -> f:count()}">
+        <h3>Treffen Sie uns vor Ort:</h3>
+        <f:link.action pageUid="{settings.flexform.pidEventList}" controller="Event" extensionName="NkcEvent" pluginName="List" action="list" arguments="{searchRequest: {organizer: institution.id}}">
+            <strong>{events.recordCount}</strong> Veranstaltungen
+        </f:link.action>
+    </f:if>
+</nke:findEvents>
+</html>

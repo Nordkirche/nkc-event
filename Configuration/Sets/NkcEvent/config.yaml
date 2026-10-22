@@ -1,0 +1,5 @@
+name: nordkirche/nkc-event
+label: 'Nordkirche Veranstaltungen'
+dependencies:
+  - nordkirche/nkc-base
+  - nordkirche/nk-google-map

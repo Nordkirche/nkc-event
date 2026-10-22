@@ -30,20 +30,20 @@
 						<f:comment>Speziellen Link ViewHelper nutzen</f:comment>
 						<f:if condition="{settings.flexform.pidEventSingle}">
 							<f:then>
-								<n:link.page class="link link--icon" pageUid="{settings.flexform.pidEventSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}">Mehr erfahren</n:link.page>
+								<n:link.page class="link link--icon" pageUid="{settings.flexform.pidEventSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}">Mehr erfahren</n:link.page>
 							</f:then>
 							<f:else>
-								<n:link.page class="link link--icon" pageUid="{settings.flexform.pidSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}">Mehr erfahren</n:link.page>
+								<n:link.page class="link link--icon" pageUid="{settings.flexform.pidSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}">Mehr erfahren</n:link.page>
 							</f:else>
 						</f:if>
 					</f:then>
 					<f:else>
 						<f:if condition="{settings.flexform.pidEventSingle}">
 							<f:then>
-								<f:link.page class="link link--icon" pageUid="{settings.flexform.pidEventSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}">Mehr erfahren</f:link.page>
+								<f:link.page class="link link--icon" pageUid="{settings.flexform.pidEventSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}">Mehr erfahren</f:link.page>
 							</f:then>
 							<f:else>
-								<f:link.page class="link link--icon" pageUid="{settings.flexform.pidSingle}" additionalParams="{tx_nkcevent_main: {uid: event.id}}">Mehr erfahren</f:link.page>
+								<f:link.page class="link link--icon" pageUid="{settings.flexform.pidSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}">Mehr erfahren</f:link.page>
 							</f:else>
 						</f:if>
 					</f:else>

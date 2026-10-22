@@ -1,91 +1,63 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nordkirche\NkcEvent\Domain\Model;
 
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
+/**
+ * Date range for the date filter of the event search form
+ */
 class FilterDate extends AbstractEntity
 {
-    /**
-     * @var \DateTime
-     */
-    protected $dateFrom;
+    protected ?\DateTime $dateFrom = null;
+
+    protected ?\DateTime $dateTo = null;
+
+    protected string $name = '';
 
     /**
-     * @var \DateTime
+     * Name shown in the TYPO3 backend
      */
-    protected $dateTo;
+    protected string $beName = '';
 
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string Name to show in TYPO3-Backend
-     */
-    protected $beName;
-
-    /**
-     * @return \DateTime
-     */
-    public function getDateFrom()
+    public function getDateFrom(): ?\DateTime
     {
         return $this->dateFrom;
     }
 
-    /**
-     * @param \DateTime $dateFrom
-     */
-    public function setDateFrom($dateFrom)
+    public function setDateFrom(?\DateTime $dateFrom): void
     {
         $this->dateFrom = $dateFrom;
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function getDateTo()
+    public function getDateTo(): ?\DateTime
     {
         return $this->dateTo;
     }
 
-    /**
-     * @param \DateTime $dateTo
-     */
-    public function setDateTo($dateTo)
+    public function setDateTo(?\DateTime $dateTo): void
     {
         $this->dateTo = $dateTo;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName($name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
-    public function getBeName()
+    public function getBeName(): string
     {
         return $this->beName;
     }
 
-    /**
-     * @param string $beName
-     */
-    public function setBeName($beName)
+    public function setBeName(string $beName): void
     {
         $this->beName = $beName;
     }

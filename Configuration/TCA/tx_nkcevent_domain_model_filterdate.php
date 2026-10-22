@@ -1,14 +1,18 @@
 <?php
 
-return [
+use TYPO3\CMS\Core\Information\Typo3Version;
+
+defined('TYPO3') || die();
+
+$ll = 'LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:';
+
+$tca = [
     'ctrl' => [
-        'title' => 'LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:tx_nkcevent_domain_model_filterdate',
+        'title' => $ll . 'tx_nkcevent_domain_model_filterdate',
         'label' => 'be_name',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'cruser_id' => 'cruser_id',
-        'searchFields' => 'be_name,name',
-        'default_sortby' => 'ORDER BY date_from',
+        'default_sortby' => 'date_from',
         'delete' => 'deleted',
         'enablecolumns' => [
             'disabled' => 'hidden',
@@ -18,92 +22,76 @@ return [
         'iconfile' => 'EXT:nkc_event/Resources/Public/Icons/tx_nkcevent_domain_model_filterdate.svg',
     ],
     'types' => [
-        '1' => ['showitem' => 'hidden, name, date_from, date_to, be_name,--div--;LLL:EXT:core/Resources/Private/Language/locallang_ttc.xlf:tabs.access,starttime, endtime'],
-    ],
-    'palettes' => [
-        '1' => ['showitem' => ''],
+        '1' => ['showitem' => 'hidden, name, date_from, date_to, be_name, --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access, starttime, endtime'],
     ],
     'columns' => [
         'hidden' => [
-            'exclude' => 1,
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_ttc.xlf:LGL.hidden',
+            'exclude' => true,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hidden',
             'config' => [
                 'type' => 'check',
+                'renderType' => 'checkboxToggle',
             ],
         ],
         'starttime' => [
-            'exclude' => 1,
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_ttc.xlf:LGL.starttime',
+            'exclude' => true,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
             'config' => [
-                'type' => 'input',
-                'size' => 13,
-                'eval' => 'datetime',
-                'checkbox' => 0,
+                'type' => 'datetime',
                 'default' => 0,
-                'range' => [
-                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y')),
-                ],
-                'renderType' => 'inputDateTime',
-                ['behaviour' => ['allowLanguageSynchronization' => true]],
             ],
         ],
         'endtime' => [
-            'exclude' => 1,
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_ttc.xlf:LGL.endtime',
+            'exclude' => true,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
             'config' => [
-                'type' => 'input',
-                'size' => 13,
-                'eval' => 'datetime',
-                'checkbox' => 0,
+                'type' => 'datetime',
                 'default' => 0,
                 'range' => [
-                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y')),
+                    'upper' => mktime(0, 0, 0, 1, 1, 2038),
                 ],
-                'renderType' => 'inputDateTime',
-                ['behaviour' => ['allowLanguageSynchronization' => true]],
             ],
         ],
         'name' => [
-            'exclude' => 0,
-            'label' => 'LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xml:tx_nkcevent_domain_model_filterdate.name',
+            'label' => $ll . 'tx_nkcevent_domain_model_filterdate.name',
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'eval' => 'trim,required',
+                'required' => true,
+                'eval' => 'trim',
             ],
         ],
         'be_name' => [
-            'exclude' => 0,
-            'label' => 'LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xml:tx_nkcevent_domain_model_filterdate.be_name',
+            'label' => $ll . 'tx_nkcevent_domain_model_filterdate.be_name',
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'eval' => 'trim,required',
+                'required' => true,
+                'eval' => 'trim',
             ],
         ],
         'date_from' => [
-            'exclude' => 0,
-            'label' => 'LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xml:tx_nkcevent_domain_model_filterdate.date_from',
+            'label' => $ll . 'tx_nkcevent_domain_model_filterdate.date_from',
             'config' => [
-                'type' => 'input',
-                'size' => 13,
-                'eval' => 'date',
-                'checkbox' => 0,
+                'type' => 'datetime',
+                'format' => 'date',
                 'default' => 0,
-                'renderType' => 'inputDateTime',
             ],
         ],
         'date_to' => [
-            'exclude' => 0,
-            'label' => 'LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xml:tx_nkcevent_domain_model_filterdate.date_to',
+            'label' => $ll . 'tx_nkcevent_domain_model_filterdate.date_to',
             'config' => [
-                'type' => 'input',
-                'size' => 13,
-                'eval' => 'date',
-                'checkbox' => 0,
+                'type' => 'datetime',
+                'format' => 'date',
                 'default' => 0,
-                'renderType' => 'inputDateTime',
             ],
         ],
     ],
 ];
+
+// TYPO3 v14 derives searchable fields from the column types
+if ((new Typo3Version())->getMajorVersion() < 14) {
+    $tca['ctrl']['searchFields'] = 'be_name,name';
+}
+
+return $tca;

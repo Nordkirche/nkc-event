@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<xliff version="1.0">
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file source-language="en" datatype="plaintext" original="messages" date="2017-07-04T09:11:42Z" product-name="nkc_event">
         <header/>
         <body>
@@ -52,6 +52,12 @@
             <trans-unit id="tx_nkcevent_domain_model_filterdate.date_to">
                 <source>End date</source>
             </trans-unit>
-        </body>
+			<trans-unit id="wizard.nkcevent_redirect">
+				<source>Veranstaltungen: Umleitung auf sprechende URL</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_redirect.description">
+				<source>Leitet Kurzlinks (?nkce=ID) auf die Detailseite der Veranstaltung um</source>
+			</trans-unit>
+		</body>
     </file>
 </xliff>

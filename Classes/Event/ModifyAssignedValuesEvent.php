@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Nordkirche\NkcEvent\Event;
 
 use Nordkirche\NkcEvent\Controller\EventController;
-use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 
 final class ModifyAssignedValuesEvent
 {
     public function __construct(
         private readonly EventController $controller,
         private array $assignedValues,
-        private readonly Request $request
+        private readonly RequestInterface $request
     ) {}
 
     public function getAssignedValues(): array
@@ -30,7 +30,7 @@ final class ModifyAssignedValuesEvent
         return $this->controller;
     }
 
-    public function getRequest(): Request
+    public function getRequest(): RequestInterface
     {
         return $this->request;
     }

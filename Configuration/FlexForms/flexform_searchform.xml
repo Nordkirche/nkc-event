@@ -2,14 +2,11 @@
 	<sheets>
 		<sTemplate>
 			<ROOT>
-				<TCEforms>
 					<sheetTitle>Ausgabe</sheetTitle>
-				</TCEforms>
 				<type>array</type>
 				<el>
 
 					<settings.flexform.searchFormTemplate>
-						<TCEforms>
 							<label>Art des Suchformulars</label>
 							<onChange>reload</onChange>
 							<config>
@@ -17,29 +14,27 @@
 								<renderType>selectSingle</renderType>
 								<items>
 									<numIndex index="0">
-										<numIndex index="0">Normale Version</numIndex>
-										<numIndex index="1">Default</numIndex>
+										<label>Normale Version</label>
+										<value>Default</value>
 									</numIndex>
 									<numIndex index="1">
-										<numIndex index="0">Service Flap: Veranstaltungen</numIndex>
-										<numIndex index="1">ServiceFlap</numIndex>
+										<label>Service Flap: Veranstaltungen</label>
+										<value>ServiceFlap</value>
 									</numIndex>
 									<numIndex index="2">
-										<numIndex index="0">Service Flap: Kirchenmusik</numIndex>
-										<numIndex index="1">ServiceFlapConcerts</numIndex>
+										<label>Service Flap: Kirchenmusik</label>
+										<value>ServiceFlapConcerts</value>
 									</numIndex>
                                     <numIndex index="3">
-                                        <numIndex index="0">Gottesdienste (z.B. zur Verwendung im Teaser für die Gottesdienstsuche)</numIndex>
-                                        <numIndex index="1">ChurchServices</numIndex>
+                                    	<label>Gottesdienste (z.B. zur Verwendung im Teaser für die Gottesdienstsuche)</label>
+                                    	<value>ChurchServices</value>
                                     </numIndex>
 								</items>
 								<default>Default</default>
 							</config>
-						</TCEforms>
 					</settings.flexform.searchFormTemplate>
 
 					<settings.flexform.header>
-						<TCEforms>
 							<label>Überschrift für Suchformular (optional)</label>
 							<config>
 								<type>input</type>
@@ -47,33 +42,30 @@
 								<default></default>
 							</config>
 							<displayCond>FIELD:settings.flexform.searchFormTemplate:=:Default</displayCond>
-						</TCEforms>
 					</settings.flexform.header>
 
 					<settings.flexform.header_layout>
-						<TCEforms>
 							<label>Layout</label>
 							<config>
 								<type>select</type>
 								<renderType>selectSingle</renderType>
 								<items>
 									<numIndex index="0">
-										<numIndex index="0">Überschrift 1</numIndex>
-										<numIndex index="1">1</numIndex>
+										<label>Überschrift 1</label>
+										<value>1</value>
 									</numIndex>
 									<numIndex index="1">
-										<numIndex index="0">Überschrift 2</numIndex>
-										<numIndex index="1">2</numIndex>
+										<label>Überschrift 2</label>
+										<value>2</value>
 									</numIndex>
 									<numIndex index="2">
-										<numIndex index="0">Überschrift 3</numIndex>
-										<numIndex index="1">3</numIndex>
+										<label>Überschrift 3</label>
+										<value>3</value>
 									</numIndex>
 								</items>
 								<default>2</default>
 							</config>
 							<displayCond>FIELD:settings.flexform.searchFormTemplate:=:Default</displayCond>
-						</TCEforms>
 					</settings.flexform.header_layout>
 
 				</el>
@@ -81,26 +73,21 @@
 		</sTemplate>
 		<sFilter>
 			<ROOT>
-				<TCEforms>
 					<sheetTitle>Filter</sheetTitle>
-				</TCEforms>
 				<type>array</type>
 
 				<el>
 					<settings.filter.cityCollection>
-						<TCEforms>
 							<label>Orte (Namen durch Komma getrennt)</label>
 							<config>
 								<type>text</type>
 								<rows>3</rows>
 								<cols>40</cols>
 							</config>
-						</TCEforms>
 					</settings.filter.cityCollection>
 
 
 					<settings.filter.institutionCollection>
-						<TCEforms>
 							<label>Institutionen zu Orten</label>
 							<config>
 								<type>user</type>
@@ -110,53 +97,30 @@
 								<maxItems>99</maxItems>
 								<size>10</size>
 							</config>
-						</TCEforms>
 					</settings.filter.institutionCollection>
 
 					<settings.filter.pidDateFilter>
-						<TCEforms>
 							<label>Seite mit Datumsvorlagen</label>
 							<config>
 								<type>group</type>
-								<internal_type>db</internal_type>
 								<allowed>pages</allowed>
 								<size>1</size>
 								<maxitems>1</maxitems>
 								<minitems>0</minitems>
 								<show_thumbs>1</show_thumbs>
-								<wizards>
-									<suggest>
-										<type>suggest</type>
-										<default>
-											<searchWholePhrase>1</searchWholePhrase>
-										</default>
-									</suggest>
-								</wizards>
 							</config>
-						</TCEforms>
 					</settings.filter.pidDateFilter>
 
 					<settings.filter.categoryCollection>
-						<TCEforms>
 							<label>Kategorien</label>
 							<config>
 								<type>group</type>
-								<internal_type>db</internal_type>
 								<allowed>sys_category</allowed>
 								<size>10</size>
 								<maxitems>99</maxitems>
 								<minitems>0</minitems>
 								<show_thumbs>1</show_thumbs>
-								<wizards>
-									<suggest>
-										<type>suggest</type>
-										<default>
-											<searchWholePhrase>1</searchWholePhrase>
-										</default>
-									</suggest>
-								</wizards>
 							</config>
-						</TCEforms>
 					</settings.filter.categoryCollection>
 
 				</el>
@@ -164,56 +128,32 @@
 		</sFilter>
 		<sPages>
 			<ROOT>
-				<TCEforms>
 					<sheetTitle>Seiten</sheetTitle>
-				</TCEforms>
 				<type>array</type>
 
 				<el>
 					<settings.flexform.pidSingle>
-						<TCEforms>
 							<label>Seite für Einzelansicht</label>
 							<config>
 								<type>group</type>
-								<internal_type>db</internal_type>
 								<allowed>pages</allowed>
 								<size>1</size>
 								<maxitems>1</maxitems>
 								<minitems>0</minitems>
 								<show_thumbs>1</show_thumbs>
-								<wizards>
-									<suggest>
-										<type>suggest</type>
-										<default>
-											<searchWholePhrase>1</searchWholePhrase>
-										</default>
-									</suggest>
-								</wizards>
 							</config>
-						</TCEforms>
 					</settings.flexform.pidSingle>
 
 					<settings.flexform.pidList>
-						<TCEforms>
 							<label>Seite für Listenansicht</label>
 							<config>
 								<type>group</type>
-								<internal_type>db</internal_type>
 								<allowed>pages</allowed>
 								<size>1</size>
 								<maxitems>1</maxitems>
 								<minitems>0</minitems>
 								<show_thumbs>1</show_thumbs>
-								<wizards>
-									<suggest>
-										<type>suggest</type>
-										<default>
-											<searchWholePhrase>1</searchWholePhrase>
-										</default>
-									</suggest>
-								</wizards>
 							</config>
-						</TCEforms>
 					</settings.flexform.pidList>
 
 				</el>

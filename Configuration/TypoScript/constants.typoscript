@@ -7,6 +7,18 @@ plugin.tx_nkcevent {
         # cat=plugin.tx_nkcevent/file; type=string; label=Page ID Event Liste
         pidEventList = 65
 
+        # cat=plugin.tx_nkcevent/links; type=string; label=Kurzlink Veranstaltung (Seite mit Plugin "Veranstaltungen: Umleitung")
+        eventShortLink = /event/?nkce=
+
+        # cat=plugin.tx_nkcevent/icons; type=string; label=Karten-Icon Veranstaltung (%s = Typ)
+        eventIconName = EXT:nkc_base/Resources/Public/MapIcons/event_%s.svg
+
+        # cat=plugin.tx_nkcevent/categories; type=string; label=NAPI-Kategorien für digitale Veranstaltungen
+        digitalEventCategoryId = 606,647
+
+        # cat=plugin.tx_nkcevent/categories; type=string; label=NAPI-Kategorien für hybride Veranstaltungen
+        hybridEventCategoryId = 646
+
     }
 }
 

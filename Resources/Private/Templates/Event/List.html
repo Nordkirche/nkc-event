@@ -1,7 +1,6 @@
 <html xmlns:n="http://typo3.org/ns/Nordkirche/NkcBase/ViewHelpers"
       xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers"
       xmlns:nkg="http://typo3.org/ns/Nordkirche/NkGoogleMap/ViewHelpers"
-      xmlns:v="http://typo3.org/ns/FluidTYPO3/Vhs"
       data-namespace-typo3-fluid="true">
 
     <f:layout name="Default" />
@@ -56,7 +55,7 @@
                                     <f:if condition="{settings.flexform.paginate.mode} == 1">
                                         <f:if condition="{events.pageCount} >= {query->n:nextPage()}">
                                             <div class="ajax-list__next-page" data-request-uri="{f:uri.action(action: 'list', arguments: {currentPage: '{query->n:nextPage()}', searchRequest: searchRequest.array}, additionalParams: {type: settings.ajaxListTypeNum, uid: content.uid})}">
-                                                <v:render.template file="EXT:nkc_base/Resources/Private/Partials/LoadMoreButton.html" />
+                                                <f:render partial="LoadMoreButton" />
                                             </div>
                                         </f:if>
                                     </f:if>
@@ -65,7 +64,7 @@
                         </f:if>
                     </f:then>
                     <f:else>
-                        <f:if condition="{settings.flexform.errorMessgage}">
+                        <f:if condition="{settings.flexform.errorMessage}">
                             <f:then>
                                 {settings.flexform.errorMessage}
                             </f:then>

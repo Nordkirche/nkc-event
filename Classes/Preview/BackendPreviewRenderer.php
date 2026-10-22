@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nordkirche\NkcEvent\Preview;
 
 use Nordkirche\Ndk\Api;
@@ -7,14 +9,20 @@ use Nordkirche\Ndk\Domain\Model\Event\Event;
 use Nordkirche\Ndk\Domain\Query\EventQuery;
 use Nordkirche\Ndk\Domain\Repository\EventRepository;
 use Nordkirche\Ndk\Service\NapiService;
-use Nordkirche\NkcBase\Service\ApiService;
-use Nordkirche\NkcEvent\Controller\EventController;
-use Nordkirche\NkcEvent\Controller\MapController;
+use Nordkirche\Ndk\Service\Result;
+use Nordkirche\NkcBase\MapCache\MapMarkerCache;
+use Nordkirche\NkcBase\Service\NdkApiFactory;
+use Nordkirche\NkcEvent\Service\EventMapItemService;
+use Nordkirche\NkcEvent\Service\EventQueryService;
+use TYPO3\CMS\Backend\Preview\PreviewRendererInterface;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
-class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRendererInterface
+/**
+ * Preview of the nkc_event plugins in the page module
+ */
+class BackendPreviewRenderer implements PreviewRendererInterface
 {
     /**
      * @var Api
@@ -26,20 +34,36 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
      */
     protected $flexformData;
 
+    public function __construct(
+        private readonly NdkApiFactory $ndkApiFactory,
+        private readonly EventMapItemService $mapItemService,
+        private readonly EventQueryService $queryService,
+    ) {}
+
     public function renderPageModulePreviewHeader(GridColumnItem $item): string
     {
-        $row = $item->getRecord();
-        return sprintf('<h3>%s</h3>', LocalizationUtility::translate('LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.' . $row['list_type']));
+        $label = $this->getLanguageService()->sL('LLL:EXT:nkc_event/Resources/Private/Language/locallang_db.xlf:wizard.' . MapMarkerCache::getPluginType($this->getRow($item)));
+        return '<h3>' . htmlspecialchars($label) . '</h3>';
     }
 
     public function renderPageModulePreviewContent(GridColumnItem $item): string
     {
-        $row = $item->getRecord();
-        $this->api = ApiService::get();
-        $this->flexformData = GeneralUtility::xml2array($row['pi_flexform']);
-        $content = '';
+        $row = $this->getRow($item);
+        $flexform = GeneralUtility::xml2array((string)($row['pi_flexform'] ?? ''));
+        $this->flexformData = is_array($flexform) ? $flexform : [];
 
-        switch ($row['list_type']) {
+        try {
+            $this->api = $this->ndkApiFactory->getApi();
+            return $this->renderPluginPreview(MapMarkerCache::getPluginType($row));
+        } catch (\Throwable $e) {
+            return '<p>' . htmlspecialchars('NAPI nicht erreichbar: ' . $e->getMessage()) . '</p>';
+        }
+    }
+
+    private function renderPluginPreview(string $pluginType): string
+    {
+        $content = '';
+        switch ($pluginType) {
             case 'nkcevent_show':
                 $content .= $this->renderEventSingleView();
                 break;
@@ -90,18 +114,15 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
             ],
         ];
 
-        $mapController = GeneralUtility::makeInstance(MapController::class);
-        $mapController->initializeAction();
-
-        $query = new EventQuery();
-
-        [$limit, $mapItems] = $mapController->getMapItems($query, $settings);
+        $result = $this->mapItemService->getMapItems($settings);
+        $limit = $result['limitExceeded'];
+        $mapItems = $result['items'];
 
         $content .= '<p>Marker:<br /><ul>';
 
         foreach ($mapItems as $record) {
             $content .= '<li>';
-            $content .= htmlentities($record->getLabel());
+            $content .= htmlspecialchars((string)$record->getLabel());
             $content .= ' [' . (int)($record->getId()) . ']';
             $content .= '</li>';
         }
@@ -109,7 +130,7 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
         $content .= '</ul></p>';
 
         if ($limit) {
-            $content .= '... und weitere ' . ($mapItems->getRecordCount() - 10);
+            $content .= '... und weitere ' . ($mapItems instanceof Result ? $mapItems->getRecordCount() - 10 : '');
         }
 
         return $content;
@@ -125,10 +146,7 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
 
         $eventRepository = $this->api->factory(EventRepository::class);
 
-        /** @var EventController $eventController */
-        $eventController = GeneralUtility::makeInstance(EventController::class);
-
-        $query = $this->api->factory(EventQuery::class);
+        $query = new EventQuery();
 
         // Set pagination parameters
         $query->setPageSize(10);
@@ -149,7 +167,9 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
             'numDays' => $this->getFieldFromFlexform('settings.flexform.numDays', 'sDEF'),
         ];
 
-        $eventController->setFlexformFilters($query, $flexform);
+        $this->queryService->applyListFilters($query, $flexform);
+        // Same as the frontend list: no past events
+        $query->setTimeFromStart(new \DateTime('today'));
 
         // Get Events
         $events = $eventRepository->get($query);
@@ -159,7 +179,7 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
 
             foreach ($events as $event) {
                 $content .= '<li>';
-                $content .= htmlentities($event->getLabel());
+                $content .= htmlspecialchars((string)$event->getLabel());
                 $content .= ' [' . (int)($event->getId()) . ']';
                 $content .= '</li>';
             }
@@ -167,7 +187,7 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
             $content .= '</ul></p>';
 
             if ($events->getPageCount() > 1) {
-                $content .= '... und ' . $events->getRecordCount() - 10 . ' weitere Veranstaltungen';
+                $content .= '... und ' . ($events->getRecordCount() - 10) . ' weitere Veranstaltungen';
             }
         } else {
             $content .= 'Keine Treffer!';
@@ -188,7 +208,7 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
             $napiService = $this->api->factory(NapiService::class);
             $event = $napiService->resolveUrl($eventResource);
             if ($event instanceof Event) {
-                $content .= htmlentities($event->getTitle());
+                $content .= htmlspecialchars((string)$event->getTitle());
                 $content .= ' [' . (int)($event->getId()) . ']';
             } else {
                 $content .= '[nicht gefunden]';
@@ -214,7 +234,7 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
 
         if (isset($flexform['data'])) {
             $flexform = $flexform['data'];
-            if (is_array($flexform) && is_array($flexform[$sheet]) && is_array($flexform[$sheet]['lDEF'])
+            if (is_array($flexform) && is_array($flexform[$sheet] ?? null) && is_array($flexform[$sheet]['lDEF'] ?? null)
                 && isset($flexform[$sheet]['lDEF'][$key]) && is_array($flexform[$sheet]['lDEF'][$key]) && isset($flexform[$sheet]['lDEF'][$key]['vDEF'])
             ) {
                 return $flexform[$sheet]['lDEF'][$key]['vDEF'];
@@ -222,5 +242,18 @@ class BackendPreviewRenderer implements \TYPO3\CMS\Backend\Preview\PreviewRender
         }
 
         return null;
+    }
+
+    /**
+     * Record of the content element (TYPO3 v14: getRow(), v13: getRecord())
+     */
+    private function getRow(GridColumnItem $item): array
+    {
+        return method_exists($item, 'getRow') ? $item->getRow() : (array)$item->getRecord();
+    }
+
+    private function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }

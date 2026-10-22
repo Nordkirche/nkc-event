@@ -1,0 +1,36 @@
+categories:
+  nkcEvent:
+    label: 'Nordkirche Veranstaltungen'
+
+settings:
+  plugin.tx_nkcevent.settings.pidEventSingle:
+    label: 'Seite: Veranstaltung Detail'
+    category: nkcEvent
+    type: int
+    default: 0
+  plugin.tx_nkcevent.settings.pidEventList:
+    label: 'Seite: Veranstaltungen Liste'
+    category: nkcEvent
+    type: int
+    default: 0
+  plugin.tx_nkcevent.settings.eventShortLink:
+    label: 'Kurzlink Veranstaltung'
+    description: 'Seite mit dem Plugin "Veranstaltungen: Umleitung", die ID wird angehängt'
+    category: nkcEvent
+    type: string
+    default: '/event/?nkce='
+  plugin.tx_nkcevent.settings.eventIconName:
+    label: 'Karten-Icon Veranstaltung (%s = Typ)'
+    category: nkcEvent
+    type: string
+    default: 'EXT:nkc_base/Resources/Public/MapIcons/event_%s.svg'
+  plugin.tx_nkcevent.settings.digitalEventCategoryId:
+    label: 'NAPI-Kategorien für digitale Veranstaltungen'
+    category: nkcEvent
+    type: string
+    default: '606,647'
+  plugin.tx_nkcevent.settings.hybridEventCategoryId:
+    label: 'NAPI-Kategorien für hybride Veranstaltungen'
+    category: nkcEvent
+    type: string
+    default: '646'

@@ -1,143 +1,156 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nordkirche\NkcEvent\Service;
 
 use Nordkirche\Ndk\Domain\Model\Event\Event;
-use TYPO3\CMS\Core\SingletonInterface;
+use Nordkirche\NkcEvent\Event\ModifyCalendarExportEvent;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 
-class ExportService implements SingletonInterface
+/**
+ * iCalendar export of events (RFC 5545)
+ */
+class ExportService
 {
-    /**
-     * Prefix for iCalendar files
-     */
-    public const VCALENDAR_START = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:netl_events TYPO3 Extension\nMETHOD:PUBLISH";
+    private const EOL = "\r\n";
+    private const PRODUCT_ID = '-//Nordkirche//nkc_event//DE';
+    private const TIMEZONE = 'Europe/Berlin';
+
+    public function __construct(private readonly ?EventDispatcherInterface $eventDispatcher = null) {}
 
     /**
-     * Postfix for iCalendar files
-     */
-    public const VCALENDAR_END = 'END:VCALENDAR';
-
-    /**
-     * Render the iCalendar events with the required wrap
+     * .ics file of an event, after ModifyCalendarExportEvent
      *
-     * @param  $events
-     * @param  string $filename
-     * @throws \Exception
+     * @return array{calendar: string, fileName: string}
      */
-    public static function renderCalendar($events, $filename = 'calendar.ics')
+    public function export(Event $event, RequestInterface $request): array
     {
-        $eventExport = '';
+        $export = new ModifyCalendarExportEvent($event, $this->renderCalendar([$event]), 'event-' . $event->getId() . '.ics', $request);
+        if ($this->eventDispatcher !== null) {
+            /** @var ModifyCalendarExportEvent $export */
+            $export = $this->eventDispatcher->dispatch($export);
+        }
 
+        // The name ends up in the Content-Disposition header
+        $fileName = trim(str_replace(['"', '\\', '/', "\r", "\n"], '', $export->getFileName()));
+
+        return [
+            'calendar' => $export->getCalendar(),
+            'fileName' => $fileName !== '' ? $fileName : 'event.ics',
+        ];
+    }
+
+    /**
+     * @param iterable<Event> $events
+     */
+    public function renderCalendar(iterable $events): string
+    {
+        $lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:' . self::PRODUCT_ID, 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
         foreach ($events as $event) {
-            $eventExport .= self::iCalendarData($event);
+            if ($event instanceof Event) {
+                array_push($lines, ...$this->renderEvent($event));
+            }
         }
+        $lines[] = 'END:VCALENDAR';
 
-        $content = implode("\n", [
-            self::VCALENDAR_START,
-            $eventExport,
-            self::VCALENDAR_END,
-        ]);
-        self::setIcalHeaders($content, $filename);
-
-        echo $content;
-        die;
+        return implode(self::EOL, array_map($this->fold(...), $lines)) . self::EOL;
     }
 
     /**
-     * Return an iCalendar file as string representation suitable for sending to the client
-     *
-     * @param Event $event
-     * @return string $iCalendarData
+     * @return string[]
      */
-    public static function iCalendarData($event)
+    private function renderEvent(Event $event): array
     {
-        $now = new \DateTime('now', new \DateTimeZone('UTC'));
-        $timezone = new \DateTimeZone('Europe/Berlin');
-
-        /** @var \DateTime $startDate */
-        $startDate = new \DateTime($event->getStartsAt()->format('Y-m-d H:i'), $timezone);
-        $startDate->setTimezone(new \DateTimeZone('UTC'));
-
-        /** @var \DateTime $stopDate */
-        $stopDate = new \DateTime($event->getEndsAt()->format('Y-m-d H:i'), $timezone);
-        $stopDate->setTimezone(new \DateTimeZone('UTC'));
-
-        if ($startDate == $stopDate) {
-            $stopDate->add(new \DateInterval('PT1H'));
+        $utc = new \DateTimeZone('UTC');
+        $start = $this->toUtc($this->read(static fn() => $event->getStartsAt()));
+        $end = $this->toUtc($this->read(static fn() => $event->getEndsAt())) ?? ($start ? (clone $start)->add(new \DateInterval('PT1H')) : null);
+        if ($start !== null && $end !== null && $end <= $start) {
+            $end = (clone $start)->add(new \DateInterval('PT1H'));
         }
 
-        $iCalData = [];
+        $lines = [
+            'BEGIN:VEVENT',
+            'UID:' . $this->getUniqueIdentifier($event),
+            'DTSTAMP:' . (new \DateTime('now', $utc))->format('Ymd\THis\Z'),
+            'SUMMARY:' . $this->escape((string)$this->read(static fn() => $event->getTitle())),
+        ];
+        if ($start !== null) {
+            $lines[] = 'DTSTART:' . $start->format('Ymd\THis\Z');
+        }
+        if ($end !== null) {
+            $lines[] = 'DTEND:' . $end->format('Ymd\THis\Z');
+        }
+        $location = (string)$this->read(static fn() => $event->getLocationName());
+        if ($location !== '') {
+            $lines[] = 'LOCATION:' . $this->escape($location);
+        }
+        $description = (string)$this->read(static fn() => $event->getDescription());
+        if ($description !== '') {
+            $lines[] = 'DESCRIPTION:' . $this->escape($description);
+        }
+        $lines[] = 'CLASS:PUBLIC';
+        $lines[] = 'END:VEVENT';
 
-        $iCalData[] = 'BEGIN:VEVENT';
-        $iCalData[] = 'UID:' . self::getUniqueIdentifier($event);
-        $iCalData[] = 'LOCATION:' . self::escapeTextForIcal($event->getLocationName());
-        $iCalData[] = 'SUMMARY:' . self::escapeTextForIcal($event->getTitle());
-        $iCalData[] = 'DESCRIPTION:' . self::escapeTextForIcal($event->getDescription());
-        $iCalData[] = 'CLASS:PUBLIC';
-
-        $iCalData[] = 'DTSTART:' . $startDate->format('Ymd\THis\Z');
-        $iCalData[] = 'DTEND:' . $stopDate->format('Ymd\THis\Z');
-
-        $iCalData[] = 'DTSTAMP:' . $now->format('Ymd\THis\Z');
-
-        $iCalData[] = 'END:VEVENT';
-
-        return implode("\r\n", $iCalData);
+        return $lines;
     }
 
     /**
-     * Escapes given text for usage in ical format.
-     *
-     * @param $textInput
-     * @return mixed|string
-     *
-     * @see http://www.ietf.org/rfc/rfc2445.txt
+     * NDK getters with non-nullable return types fail on missing values
      */
-    public static function escapeTextForIcal($textInput)
+    private function read(\Closure $getter): mixed
     {
-        $text = html_entity_decode(strip_tags($textInput), ENT_COMPAT | ENT_HTML401, 'UTF-8');
-        return str_replace(
-            ['"', '\\', ',', ':', ';', "\n"],
-            ['DQUOTE', '\\\\', "\,", '":"', "\;", '\\n'],
-            $text
-        );
+        try {
+            return $getter();
+        } catch (\TypeError) {
+            return null;
+        }
+    }
+
+    private function toUtc(mixed $date): ?\DateTime
+    {
+        if (!$date instanceof \DateTimeInterface) {
+            return null;
+        }
+        // The NAPI delivers local times
+        $local = new \DateTime($date->format('Y-m-d H:i:s'), new \DateTimeZone(self::TIMEZONE));
+        return $local->setTimezone(new \DateTimeZone('UTC'));
     }
 
     /**
-     * Return a unique identifier
-     *
-     * @param Event $event
-     * @return string
+     * Text values: plain text, backslash, comma, semicolon and line breaks escaped
      */
-    public static function getUniqueIdentifier($event)
+    private function escape(string $text): string
     {
-        return md5($event->getId() . ':' . $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']);
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = str_replace(["\r\n", "\r"], "\n", $text);
+        return str_replace(['\\', ';', ',', "\n"], ['\\\\', '\;', '\\,', '\\n'], trim($text));
     }
 
     /**
-     * Set content headers for the iCalendar data
-     *
-     * @param string $content
-     * @param string $filename
-     * @throws \Exception
+     * Lines longer than 75 octets are folded (continuation lines start with a space)
      */
-    public static function setIcalHeaders($content, $filename)
+    private function fold(string $line): string
     {
-        if (ob_get_contents()) {
-            throw new \Exception('Some data has already been sent to the browser', 1408607681);
+        if (strlen($line) <= 75) {
+            return $line;
         }
-        header('Content-Type: text/calendar');
-        if (headers_sent()) {
-            throw new \Exception('Some data has already been sent to the browser', 1408607681);
+        $parts = [];
+        $current = '';
+        foreach (mb_str_split($line) as $character) {
+            if (strlen($current . $character) > ($parts === [] ? 75 : 74)) {
+                $parts[] = $current;
+                $current = '';
+            }
+            $current .= $character;
         }
+        $parts[] = $current;
+        return implode(self::EOL . ' ', $parts);
+    }
 
-        header('Cache-Control: public');
-        header('Pragma: public');
-        header('Content-Description: iCalendar Event File');
-        header('Content-Transfer-Encoding: binary');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        if (!isset($_SERVER['HTTP_ACCEPT_ENCODING']) or empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-            header('Content-Length: ' . strlen($content));
-        }
+    private function getUniqueIdentifier(Event $event): string
+    {
+        return md5($event->getId() . ':' . ($GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] ?? '')) . '@nkc_event';
     }
 }

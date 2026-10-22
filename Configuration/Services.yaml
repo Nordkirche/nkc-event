@@ -6,3 +6,13 @@ services:
 
   Nordkirche\NkcEvent\:
     resource: '../Classes/*'
+    exclude:
+      - '../Classes/Domain/Dto/*'
+      - '../Classes/Domain/Model/*'
+      - '../Classes/Event/*'
+      # Registered in Services.php, depending on the TYPO3 version
+      - '../Classes/Upgrades/*'
+
+  # Instantiated by the page module via GeneralUtility::makeInstance()
+  Nordkirche\NkcEvent\Preview\BackendPreviewRenderer:
+    public: true

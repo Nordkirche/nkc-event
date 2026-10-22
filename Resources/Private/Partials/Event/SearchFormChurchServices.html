@@ -3,22 +3,20 @@
 	Currently used to display a form to search for church services by date and location
 </f:comment>
 
-<form action="/" method="get">
-	<input type="hidden" name="tx_nkcevent_main[action]" value="search" />
-	<input type="hidden" name="id" value="{searchPid}" />
-	<input type="hidden" name="no_cache" value="1" />
-	<input type="hidden" name="tx_nkcevent_main[searchRequest][category]" value="223" />
-	<input type="hidden" name="tx_nkcevent_main[searchRequest][organizer]" value="{searchRequest.organizer}" />
+<form action="{f:uri.action(pluginName: 'list', controller: 'Event', action: 'search', pageUid: searchPid)}" method="post">
+	<input type="hidden" name="tx_nkcevent_list[searchRequest][category]" value="223" />
+	<input type="hidden" name="tx_nkcevent_list[searchRequest][organizer]" value="{searchRequest.organizer}" />
 
 	<f:if condition="{filter.cities}">
+        <f:asset.script identifier="nkcBaseSearchFilter" src="EXT:nkc_base/Resources/Public/JavaScript/searchFilter.js" defer="1" />
         <label>Orte</label>
-        <ul>
+        <ul data-search-field="city" data-search-reset="location">
             <li data-caption="Orte" data-value="">Orte</li>
             <f:for each="{filter.cities}" as="city">
                 <li data-caption="{city.name}" data-value="{city.name}">
-                    <a>{city.name}</a>
+                    <a href="#" role="button">{city.name}</a>
                     <f:if condition="{city.locations}">
-                        <ul>
+                        <ul data-search-field="location" data-search-parent-field="city">
                             <f:for each="{city.locations}" as="location">
                                 <li data-caption="{location.name}" data-value="{location.name}">{location.name}</li>
                             </f:for>
@@ -27,9 +25,9 @@
                 </li>
             </f:for>
             <li>
-                <input name="tx_nkcevent_main[searchRequest][location]" type="hidden" value="{searchRequest.location}" />
-                <input name="tx_nkcevent_main[searchRequest][city]" type="text" placeholder="PLZ &#x2F; Orte" value="{searchRequest.city}" />
-                <button type="submit"></button>
+                <input name="tx_nkcevent_list[searchRequest][location]" type="hidden" value="{searchRequest.location}" />
+                <input name="tx_nkcevent_list[searchRequest][city]" type="text" placeholder="PLZ &#x2F; Orte" value="{searchRequest.city}" />
+                <button type="submit"><f:translate key="LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.submit" /></button>
             </li>
         </ul>
 	</f:if>
@@ -37,16 +35,17 @@
     <label>Datum</label>
     <ul>
         <li data-caption="Datum" data-value="">Datum</li>
+        <f:asset.script identifier="nkcEventSearchForm" src="EXT:nkc_event/Resources/Public/JavaScript/searchForm.js" defer="1" />
         <f:for each="{filter.dates}" as="date">
-            <li data-caption="{date.name}" data-value-min="{date.dateFrom->f:format.date(format: 'd.m.Y')}" data-value-max="{date.dateTo->f:format.date(format: 'd.m.Y')}"><a href="#" class="form-field__caption">{date.name}</a></li>
+            <li data-caption="{date.name}" data-value-min="{date.dateFrom->f:format.date(format: 'Y-m-d')}" data-value-max="{date.dateTo->f:format.date(format: 'Y-m-d')}"><a href="#" class="form-field__caption" role="button">{date.name}</a></li>
         </f:for>
         <li >
-            <input name="tx_nkcevent_main[searchRequest][dateFrom]" value="{searchRequest.dateFrom->f:format.date(format: 'd.m.Y')}" type="text"placeholder="Von" />
-            <input name="tx_nkcevent_main[searchRequest][dateTo]" value="{searchRequest.dateTo->f:format.date(format: 'd.m.Y')}" type="text" placeholder="Bis" />
+            <input name="tx_nkcevent_list[searchRequest][dateFrom]" value="{searchRequest.dateFrom->f:format.date(format: 'Y-m-d')}" type="date" min="{f:format.date(date: 'today', format: 'Y-m-d')}" aria-label="{f:translate(key: 'LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.dateFrom')}" />
+            <input name="tx_nkcevent_list[searchRequest][dateTo]" value="{searchRequest.dateTo->f:format.date(format: 'Y-m-d')}" type="date" min="{f:format.date(date: 'today', format: 'Y-m-d')}" aria-label="{f:translate(key: 'LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.dateTo')}" />
         </li>
     </ul>
 
-    <button type="submit"></button>
+    <button type="submit"><f:translate key="LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.submit" /></button>
 
 </form>
 

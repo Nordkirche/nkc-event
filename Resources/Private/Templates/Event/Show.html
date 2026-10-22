@@ -1,6 +1,5 @@
 <html xmlns:n="http://typo3.org/ns/Nordkirche/NkcBase/ViewHelpers"
       xmlns:nkg="http://typo3.org/ns/Nordkirche/NkGoogleMap/ViewHelpers"
-      xmlns:v="http://typo3.org/ns/FluidTYPO3/Vhs"
       xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
@@ -44,7 +43,7 @@
                             <td><strong>Veranstalter:</strong></td>
                             <td><span>
                                 <f:link.page additionalParams="{tx_nkcaddress_institution : {uid: event.chiefOrganizer.id}}" pageUid="{settings.flexform.pidInstitutionSingle}">
-                                    <v:render.template file="EXT:nkc_address/Resources/Private/Partials/Institution/Name.html" variables="{institution: event.chiefOrganizer}" />
+                                    <f:render partial="Institution/Name" arguments="{institution: event.chiefOrganizer}" />
                                 </f:link.page>
 
                                 <f:if condition="{event.textOrganizers}">
@@ -66,7 +65,7 @@
                                 <td><span>
                                     <f:for each="{event.organizers}" as="organizer">
                                         <f:link.page additionalParams="{tx_nkcaddress_institution : {uid: event.chiefOrganizer.id}}" pageUid="{settings.flexform.pidInstitutionSingle}">
-                                            <v:render.template file="EXT:nkc_address/Resources/Private/Partials/Institution/Name.html" variables="{institution: organizer}" />
+                                            <f:render partial="Institution/Name" arguments="{institution: organizer}" />
                                         </f:link.page>
                                         <br />
                                     </f:for>
@@ -112,7 +111,7 @@
 
 
                 <f:if condition="{mapMarker}">
-                    <nkg:googleMap markers="{0: mapMarker}" configuration="" />
+                    <nkg:googleMap markers="{0: mapMarker}" />
                 </f:if>
 
                 <f:render partial="Event/Files" arguments="{event : event}"/>

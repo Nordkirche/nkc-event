@@ -1,14 +1,20 @@
 <?php
 
-namespace  Nordkirche\NkcEvent\ViewHelpers;
+declare(strict_types=1);
+
+namespace Nordkirche\NkcEvent\ViewHelpers;
 
 use Nordkirche\Ndk\Domain\Query\EventQuery;
 use Nordkirche\Ndk\Domain\Repository\EventRepository;
-use Nordkirche\NkcBase\Exception\ApiException;
-use Nordkirche\NkcBase\Service\ApiService;
+use Nordkirche\NkcBase\Service\NdkApiFactory;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
+/**
+ * Upcoming events of an institution, a location or a full text search.
+ * The children are rendered with the variable "events" if there are events.
+ *
+ * <nke:findEvents institution="{institution.id}">{events.recordCount} Veranstaltungen</nke:findEvents>
+ */
 class FindEventsViewHelper extends AbstractViewHelper
 {
     /**
@@ -16,53 +22,42 @@ class FindEventsViewHelper extends AbstractViewHelper
      */
     protected $escapeOutput = false;
 
-    /**
-     * Initialize arguments.
-     *
-     * @throws Exception
-     */
-    public function initializeArguments()
+    public function __construct(private readonly NdkApiFactory $ndkApiFactory) {}
+
+    public function initializeArguments(): void
     {
-        parent::initializeArguments();
-        $this->registerArgument('institution', 'int', 'Find events by institution id');
-        $this->registerArgument('location', 'int', 'Find events by location id');
-        $this->registerArgument('search', 'int', 'Find events by fulltext query');
+        $this->registerArgument('institution', 'mixed', 'Id of the organizing institution');
+        $this->registerArgument('location', 'string', 'Name of the location');
+        $this->registerArgument('search', 'string', 'Full text query');
     }
 
-    /**
-     * @return string
-     * @throws ApiException
-     */
-    public function render()
+    public function render(): string
     {
-        $api = ApiService::get();
-        $eventRepository = $api->factory(EventRepository::class);
         $query = new EventQuery();
-
         if ($this->arguments['institution']) {
-            $query->setOrganizers([$this->arguments['institution']]);
+            $query->setOrganizers([(int)$this->arguments['institution']]);
         }
-
         if ($this->arguments['location']) {
-            $query->setLocation($this->arguments['location']);
+            $query->setLocation((string)$this->arguments['location']);
         }
-
         if ($this->arguments['search']) {
-            $query->setQuery($this->arguments['search']);
+            $query->setQuery((string)$this->arguments['search']);
+        }
+        $query->setTimeFromStart(new \DateTime('today'));
+
+        try {
+            $events = $this->ndkApiFactory->getApi()->factory(EventRepository::class)->get($query);
+        } catch (\Throwable) {
+            return '';
+        }
+        if (!$events->count()) {
+            return '';
         }
 
-        $query->setTimeFromStart(new \DateTime(date('Y-m-d')));
-
-        $events = $eventRepository->get($query);
-
-        if ($events->count()) {
-            $this->templateVariableContainer->add('events', $events);
-
-            $output =  $this->renderChildren();
-
-            $this->templateVariableContainer->remove('events');
-
-            return $output;
-        }
+        $variableProvider = $this->renderingContext->getVariableProvider();
+        $variableProvider->add('events', $events);
+        $output = (string)$this->renderChildren();
+        $variableProvider->remove('events');
+        return $output;
     }
 }

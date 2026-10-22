@@ -3,7 +3,7 @@
 		<p>
 			<f:for each="{event.tags}" as="tag" iteration="iterator">
 				<f:if condition="{iterator.index} > 0">|</f:if>
-				<f:link.page pageUid="{settings.flexform.pidList}" additionalParams="{tx_nkcevent_main: {searchRequest: {search: tag}}}">#{tag}</f:link.page>
+				<f:link.page pageUid="{settings.flexform.pidList}" additionalParams="{tx_nkcevent_list: {searchRequest: {search: tag}}}">#{tag}</f:link.page>
 			</f:for>
 		</p>
 	</f:if>

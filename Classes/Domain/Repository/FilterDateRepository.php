@@ -1,50 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Nordkirche\NkcEvent\Domain\Repository;
 
+use Nordkirche\NkcEvent\Domain\Model\FilterDate;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
+/**
+ * @extends Repository<FilterDate>
+ */
 class FilterDateRepository extends Repository
 {
-    // Order by daze
     protected $defaultOrderings = [
-        'date_from' => QueryInterface::ORDER_ASCENDING,
+        'dateFrom' => QueryInterface::ORDER_ASCENDING,
     ];
 
     /**
-     * @param int $storagePid
-     * @param bool $startedDates
-     * @param int $limit
-     * @return array|QueryResultInterface
+     * Date ranges of a storage page: running (default) or upcoming ones
+     *
+     * @return QueryResultInterface<int, FilterDate>
      */
-    public function findDatesByStoragePid($storagePid, $startedDates = true, $limit = 5)
+    public function findDatesByStoragePid(int $storagePid, bool $startedDates = true, int $limit = 5): QueryResultInterface
     {
         $today = strtotime('today');
         $query = $this->createQuery();
         $query->getQuerySettings()->setRespectStoragePage(false);
-
-        if ((bool)$startedDates) {
-            // Find also started dates
-            $query->matching(
-                $query->logicalAnd(
-                    $query->equals('pid', $storagePid),
-                    $query->greaterThanOrEqual('dateTo', $today)
-                )
-            );
-        } else {
-            // Find upcoming
-            $query->matching(
-                $query->logicalAnd(
-                    $query->equals('pid', $storagePid),
-                    $query->greaterThanOrEqual('dateFrom', $today)
-                )
-            );
-        }
-
+        $query->matching(
+            $query->logicalAnd(
+                $query->equals('pid', $storagePid),
+                $startedDates ? $query->greaterThanOrEqual('dateTo', $today) : $query->greaterThanOrEqual('dateFrom', $today)
+            )
+        );
         $query->setOrderings(['dateFrom' => QueryInterface::ORDER_ASCENDING]);
-
         $query->setLimit($limit);
 
         return $query->execute();

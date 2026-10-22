@@ -6,14 +6,14 @@ namespace Nordkirche\NkcEvent\Event;
 
 use Nordkirche\Ndk\Domain\Query\EventQuery;
 use Nordkirche\NkcEvent\Controller\EventController;
-use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 
 final class ModifyEventQueryEvent
 {
     public function __construct(
         private readonly EventController $controller,
         private EventQuery $eventQuery,
-        private readonly Request $request,
+        private readonly RequestInterface $request,
         private readonly array $settings
     ) {}
 
@@ -32,7 +32,7 @@ final class ModifyEventQueryEvent
         return $this->controller;
     }
 
-    public function getRequest(): Request
+    public function getRequest(): RequestInterface
     {
         return $this->request;
     }

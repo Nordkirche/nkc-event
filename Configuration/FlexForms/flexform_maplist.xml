@@ -2,22 +2,17 @@
 	<sheets>
 		<sDEF>
 			<ROOT>
-				<TCEforms>
 					<sheetTitle>Funktion</sheetTitle>
-				</TCEforms>
 				<type>array</type>
 				<el>
 					<settings.flexform.stream>
-						<TCEforms>
 							<label>Marker sukzessive nachladen</label>
 							<config>
 								<type>check</type>
 							</config>
-						</TCEforms>
 					</settings.flexform.stream>
 
 					<settings.flexform.center>
-						<TCEforms>
 							<label>Zentrum der Karte</label>
 							<onChange>reload</onChange>
 							<config>
@@ -25,26 +20,24 @@
 								<default>0</default>
 								<items>
 									<numIndex index="0">
-										<numIndex index="0">Karte automatisch ausrichten</numIndex>
-										<numIndex index="1">0</numIndex>
+										<label>Karte automatisch ausrichten</label>
+										<value>0</value>
 									</numIndex>
 
 									<numIndex index="1">
-										<numIndex index="0">Karte fest über Geo-Koordinaten ausrichten</numIndex>
-										<numIndex index="1">1</numIndex>
+										<label>Karte fest über Geo-Koordinaten ausrichten</label>
+										<value>1</value>
 									</numIndex>
 
 									<numIndex index="2">
-										<numIndex index="0">Karte anhand der Position des Betrachters ausrichten</numIndex>
-										<numIndex index="1">2</numIndex>
+										<label>Karte anhand der Position des Betrachters ausrichten</label>
+										<value>2</value>
 									</numIndex>
 								</items>
 							</config>
-						</TCEforms>
 					</settings.flexform.center>
 
 					<settings.flexform.latitude>
-						<TCEforms>
 							<label>Breitengrad</label>
 							<config>
 								<type>input</type>
@@ -52,11 +45,9 @@
 								<default></default>
 							</config>
 							<displayCond>FIELD:settings.flexform.center:=:1</displayCond>
-						</TCEforms>
 					</settings.flexform.latitude>
 
 					<settings.flexform.longitude>
-						<TCEforms>
 							<label>Längengrad</label>
 							<config>
 								<type>input</type>
@@ -64,11 +55,9 @@
 								<default></default>
 							</config>
 							<displayCond>FIELD:settings.flexform.center:=:1</displayCond>
-						</TCEforms>
 					</settings.flexform.longitude>
 
 					<settings.flexform.zoom>
-						<TCEforms>
 							<label>Zoom (Bsp: 1 = Welt, 5 = Kontinent, 10 = Stadt, 15 =  Straßen)</label>
 							<config>
 								<type>input</type>
@@ -76,20 +65,16 @@
 								<default></default>
 							</config>
 							<displayCond>FIELD:settings.flexform.center:=:1</displayCond>
-						</TCEforms>
 					</settings.flexform.zoom>
 				</el>
 			</ROOT>
 		</sDEF>
 		<sMarker>
 			<ROOT>
-				<TCEforms>
 					<sheetTitle>Marker</sheetTitle>
-				</TCEforms>
 				<type>array</type>
 				<el>
 					<settings.flexform.eventCollection>
-						<TCEforms>
 							<label>Diese Veranstaltungen darstellen</label>
 							<config>
 								<type>user</type>
@@ -99,11 +84,9 @@
 								<maxItems>99</maxItems>
 								<size>10</size>
 							</config>
-						</TCEforms>
 					</settings.flexform.eventCollection>
 
 					<settings.flexform.institutionCollection>
-						<TCEforms>
 							<label>Veranstaltungen dieser Institutionen darstellen</label>
 							<config>
 								<type>user</type>
@@ -113,12 +96,10 @@
 								<maxItems>99</maxItems>
 								<size>10</size>
 							</config>
-						</TCEforms>
 					</settings.flexform.institutionCollection>
 
 
 					<settings.flexform.categories>
-						<TCEforms>
 							<label>Veranstaltungen mit diesen Kategorien darstellen</label>
 							<exclude>1</exclude>
 							<config>
@@ -138,79 +119,64 @@
 								<minitems>0</minitems>
 								<maxitems>20</maxitems>
 							</config>
-						</TCEforms>
 					</settings.flexform.categories>
 
 					<settings.flexform.selectCategoryOption>
-						<TCEforms>
 							<label>Kategorieoption</label>
 							<config>
 								<type>select</type>
 								<renderType>selectSingle</renderType>
 								<items>
 									<numIndex index="0">
-										<numIndex index="0">Eine Veranstaltung muss alle Kategorien besitzen (UND)</numIndex>
-										<numIndex index="1">AND</numIndex>
+										<label>Eine Veranstaltung muss alle Kategorien besitzen (UND)</label>
+										<value>AND</value>
 									</numIndex>
 									<numIndex index="1">
-										<numIndex index="0">Eine Veranstaltung muss eine der Kategorien besitzen (ODER)</numIndex>
-										<numIndex index="1">OR</numIndex>
+										<label>Eine Veranstaltung muss eine der Kategorien besitzen (ODER)</label>
+										<value>OR</value>
 									</numIndex>
 								</items>
 							</config>
-						</TCEforms>
 					</settings.flexform.selectCategoryOption>
 
 					<settings.flexform.cities>
-						<TCEforms>
 							<label>Veranstaltungen aus folgenden Orten zeigen (Bsp: Kiel, Norderstedt)</label>
 							<config>
 								<type>input</type>
 								<size>30</size>
 							</config>
-						</TCEforms>
 					</settings.flexform.cities>
 
 					<settings.flexform.zipCodes>
-						<TCEforms>
 							<label>Veranstaltungen aus folgenden PLZ Bereichen zeigenen (Bsp: 24103, 22*)</label>
 							<config>
 								<type>input</type>
 								<size>30</size>
 							</config>
-						</TCEforms>
 					</settings.flexform.zipCodes>
 
 					<settings.flexform.dateFrom>
-						<TCEforms>
 							<label>Datum von</label>
 							<config>
-								<type>input</type>
-								<size>10</size>
-								<eval>date</eval>
+								<type>datetime</type>
+								<format>date</format>
 							</config>
-						</TCEforms>
 					</settings.flexform.dateFrom>
 
 					<settings.flexform.dateTo>
-						<TCEforms>
 							<label>Datum bis</label>
 							<config>
-								<type>input</type>
-								<size>10</size>
-								<eval>date</eval>
+								<type>datetime</type>
+								<format>date</format>
 							</config>
-						</TCEforms>
 					</settings.flexform.dateTo>
 
                     <settings.flexform.numDays>
-                        <TCEforms>
                             <label>Die folgenden x Tage</label>
                             <config>
                                 <type>input</type>
                                 <size>3</size>
                             </config>
-                        </TCEforms>
                     </settings.flexform.numDays>
 
 				</el>
@@ -218,25 +184,20 @@
 		</sMarker>
 		<sTemplate>
 			<ROOT>
-				<TCEforms>
 					<sheetTitle>Ausgabe</sheetTitle>
-				</TCEforms>
 				<type>array</type>
 				<el>
 
 					<settings.flexform.maxItems>
-						<TCEforms>
 							<label>Maximale Anzahl</label>
 							<config>
 								<type>input</type>
 								<size>5</size>
 								<default></default>
 							</config>
-						</TCEforms>
 					</settings.flexform.maxItems>
 
 					<settings.flexform.paginate.mode>
-						<TCEforms>
 							<label>Art der Paginierung</label>
 							<onChange>reload</onChange>
 							<config>
@@ -244,24 +205,22 @@
 								<renderType>selectSingle</renderType>
 								<items>
 									<numIndex index="0">
-										<numIndex index="0">Keine Paginierung</numIndex>
-										<numIndex index="1">0</numIndex>
+										<label>Keine Paginierung</label>
+										<value>0</value>
 									</numIndex>
 									<numIndex index="1">
-										<numIndex index="0">Button zum Laden weiterer Elemente</numIndex>
-										<numIndex index="1">1</numIndex>
+										<label>Button zum Laden weiterer Elemente</label>
+										<value>1</value>
 									</numIndex>
 									<numIndex index="2">
-										<numIndex index="0">Blätternavigation einblenden</numIndex>
-										<numIndex index="1">2</numIndex>
+										<label>Blätternavigation einblenden</label>
+										<value>2</value>
 									</numIndex>
 								</items>
 							</config>
-						</TCEforms>
 					</settings.flexform.paginate.mode>
 
 					<settings.flexform.paginate.itemsPerPage>
-						<TCEforms>
 							<label>Anzahl Elemente pro Seite</label>
 							<config>
 								<type>input</type>
@@ -269,33 +228,27 @@
 								<default>25</default>
 							</config>
 							<displayCond>FIELD:settings.flexform.paginate.mode:!=:0</displayCond>
-						</TCEforms>
 					</settings.flexform.paginate.itemsPerPage>
 
 					<settings.flexform.paginate.insertAbove>
-						<TCEforms>
 							<label>Paginierung über der Liste anzeigen</label>
 							<config>
 								<type>check</type>
 								<default>0</default>
 							</config>
 							<displayCond>FIELD:settings.flexform.paginate.mode:=:2</displayCond>
-						</TCEforms>
 					</settings.flexform.paginate.insertAbove>
 
 					<settings.flexform.paginate.insertBelow>
-						<TCEforms>
 							<label>Paginierung unter der Liste anzeigen</label>
 							<config>
 								<type>check</type>
 								<default>1</default>
 							</config>
 							<displayCond>FIELD:settings.flexform.paginate.mode:=:2</displayCond>
-						</TCEforms>
 					</settings.flexform.paginate.insertBelow>
 
 					<settings.flexform.paginate.maximumNumberOfLinks>
-						<TCEforms>
 							<label>Anzahl Links in Paginierung</label>
 							<config>
 								<type>input</type>
@@ -303,7 +256,6 @@
 								<default>5</default>
 							</config>
 							<displayCond>FIELD:settings.flexform.paginate.mode:=:2</displayCond>
-						</TCEforms>
 					</settings.flexform.paginate.maximumNumberOfLinks>
 
 				</el>
@@ -311,33 +263,20 @@
 		</sTemplate>
 		<sPages>
 			<ROOT>
-				<TCEforms>
 					<sheetTitle>Seiten</sheetTitle>
-				</TCEforms>
 				<type>array</type>
 
 				<el>
 					<settings.flexform.pidEventSingle>
-						<TCEforms>
 							<label>Seite für Einzelansicht von Veranstaltungen</label>
 							<config>
 								<type>group</type>
-								<internal_type>db</internal_type>
 								<allowed>pages</allowed>
 								<size>1</size>
 								<maxitems>1</maxitems>
 								<minitems>0</minitems>
 								<show_thumbs>1</show_thumbs>
-								<wizards>
-									<suggest>
-										<type>suggest</type>
-										<default>
-											<searchWholePhrase>1</searchWholePhrase>
-										</default>
-									</suggest>
-								</wizards>
 							</config>
-						</TCEforms>
 					</settings.flexform.pidEventSingle>
 				</el>
 			</ROOT>
