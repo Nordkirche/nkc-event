@@ -66,6 +66,18 @@ final class RouteEnhancersTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function calendarMonthsAreReadable(): void
+    {
+        $router = $this->getSite()->getRouter();
+
+        self::assertSame('/kalender/2026/11', $router->generateUri(15, ['tx_nkcevent_calendar' => ['month' => '11', 'year' => '2026']])->getPath());
+        self::assertEquals(
+            ['month' => '3', 'year' => '2027', 'controller' => 'Event', 'action' => 'calendar'],
+            $this->resolve('http://localhost/kalender/2027/3')->getArguments()['tx_nkcevent_calendar'] ?? []
+        );
+    }
+
+    #[Test]
     public function unknownEventsAreNotFound(): void
     {
         $this->expectException(\TYPO3\CMS\Core\Routing\RouteNotFoundException::class);

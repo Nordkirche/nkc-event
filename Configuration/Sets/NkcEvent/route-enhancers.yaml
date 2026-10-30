@@ -37,3 +37,14 @@ routeEnhancers:
       - { routePath: '/seite/{currentPage}', _controller: 'Map::list' }
     aspects:
       currentPage: { type: StaticRangeMapper, start: '1', end: '1000' }
+
+  NkcEventCalendar:
+    type: NkcExtbase
+    extension: NkcEvent
+    plugin: Calendar
+    defaultController: 'Event::calendar'
+    routes:
+      - { routePath: '/{year}/{month}', _controller: 'Event::calendar' }
+    aspects:
+      year: { type: StaticRangeMapper, start: '2000', end: '2100' }
+      month: { type: StaticRangeMapper, start: '1', end: '12' }

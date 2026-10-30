@@ -6,10 +6,10 @@
 
         <f:if condition="{settings.flexform.searchFormTemplate} != 'Default'">
             <f:then>
-                <f:render partial="Event/SearchForm{settings.flexform.searchFormTemplate}" arguments="{searchRequest : searchRequest, searchPid : searchPid, filter: filter, content: content}" />
+                <f:render partial="Event/SearchForm{settings.flexform.searchFormTemplate}" arguments="{searchRequest : searchRequest, searchPid : searchPid, filter: filter, content: content, autocompleteUri: autocompleteUri, autocompleteParam: autocompleteParam}" />
             </f:then>
             <f:else>
-                <f:render partial="Event/SearchForm" arguments="{searchRequest : searchRequest, searchPid : searchPid, filter: filter, content: content}" />
+                <f:render partial="Event/SearchForm" arguments="{searchRequest : searchRequest, searchPid : searchPid, filter: filter, content: content, autocompleteUri: autocompleteUri, autocompleteParam: autocompleteParam}" />
             </f:else>
         </f:if>
     </f:section>

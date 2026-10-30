@@ -73,6 +73,14 @@ class SearchFilterService
             }
         }
 
+        // "Rubriken": NAPI event types
+        foreach (GeneralUtility::trimExplode(',', (string)($settings['filter']['eventTypes'] ?? ''), true) as $eventType) {
+            $filter['eventTypes'][] = [
+                'value' => $eventType,
+                'label' => (string)(LocalizationUtility::translate('eventType.' . $eventType, 'NkcEvent') ?? $eventType),
+            ];
+        }
+
         /** @var ModifySearchFilterValuesEvent $event */
         $event = $this->eventDispatcher->dispatch(new ModifySearchFilterValuesEvent($filter, $settings, $request));
         return $event->getFilterValues();

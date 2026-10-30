@@ -46,6 +46,87 @@
                 <source>Sa</source>
             </trans-unit>
 
+            <trans-unit id="eventType.church_service">
+                <source>Gottesdienste</source>
+            </trans-unit>
+            <trans-unit id="eventType.committee">
+                <source>Gremium</source>
+            </trans-unit>
+            <trans-unit id="eventType.default">
+                <source>Sonstiges</source>
+            </trans-unit>
+            <trans-unit id="eventType.edu">
+                <source>Bildung</source>
+            </trans-unit>
+            <trans-unit id="eventType.event">
+                <source>Gemeindeleben</source>
+            </trans-unit>
+            <trans-unit id="eventType.leisure">
+                <source>Freizeit</source>
+            </trans-unit>
+            <trans-unit id="eventType.music">
+                <source>Konzert</source>
+            </trans-unit>
+            <trans-unit id="eventType.spirituality">
+                <source>Spiritualität</source>
+            </trans-unit>
+            <trans-unit id="search.eventType">
+                <source>Rubrik</source>
+            </trans-unit>
+            <trans-unit id="search.searchTerm">
+                <source>Suchbegriff</source>
+            </trans-unit>
+            <trans-unit id="calendar.previous">
+                <source>Vorheriger Monat</source>
+            </trans-unit>
+            <trans-unit id="calendar.next">
+                <source>Nächster Monat</source>
+            </trans-unit>
+            <trans-unit id="calendar.noEvents">
+                <source>Keine Veranstaltungen</source>
+            </trans-unit>
+            <trans-unit id="calendar.week">
+                <source>KW</source>
+            </trans-unit>
+            <trans-unit id="calendar.eventsOfDay">
+                <source>Veranstaltungen am %s</source>
+            </trans-unit>
+            <trans-unit id="month.1">
+                <source>Januar</source>
+            </trans-unit>
+            <trans-unit id="month.2">
+                <source>Februar</source>
+            </trans-unit>
+            <trans-unit id="month.3">
+                <source>März</source>
+            </trans-unit>
+            <trans-unit id="month.4">
+                <source>April</source>
+            </trans-unit>
+            <trans-unit id="month.5">
+                <source>Mai</source>
+            </trans-unit>
+            <trans-unit id="month.6">
+                <source>Juni</source>
+            </trans-unit>
+            <trans-unit id="month.7">
+                <source>Juli</source>
+            </trans-unit>
+            <trans-unit id="month.8">
+                <source>August</source>
+            </trans-unit>
+            <trans-unit id="month.9">
+                <source>September</source>
+            </trans-unit>
+            <trans-unit id="month.10">
+                <source>Oktober</source>
+            </trans-unit>
+            <trans-unit id="month.11">
+                <source>November</source>
+            </trans-unit>
+            <trans-unit id="month.12">
+                <source>Dezember</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

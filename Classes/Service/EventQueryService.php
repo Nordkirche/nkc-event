@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Nordkirche\NkcEvent\Service;
 
+use Nordkirche\Ndk\Domain\Model\Category;
 use Nordkirche\Ndk\Domain\Query\EventQuery;
+use Nordkirche\Ndk\Domain\Query\InstitutionQuery;
+use Nordkirche\Ndk\Domain\Repository\InstitutionRepository;
 use Nordkirche\Ndk\Service\Interfaces\QueryInterface;
 use Nordkirche\Ndk\Service\NapiService;
 use Nordkirche\NkcBase\Service\NdkApiFactory;
@@ -17,15 +20,35 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class EventQueryService
 {
-    public function __construct(private readonly NdkApiFactory $ndkApiFactory) {}
+    /**
+     * Value of settings.flexform.churchAssociation: the church association of the site institution
+     */
+    public const CHURCH_ASSOCIATION_OF_SITE = 'site';
 
     /**
-     * Filters of the list plugin (settings.flexform)
+     * Church associations of the site institutions, per request
+     *
+     * @var array<string, list<string>>
      */
-    public function applyListFilters(EventQuery $query, array $flexform): void
+    private array $churchAssociationsOfSite = [];
+
+    public function __construct(
+        private readonly NdkApiFactory $ndkApiFactory,
+        private readonly ?CategoryTree $categoryTree = null,
+    ) {}
+
+    /**
+     * Filters of the list and calendar plugins (settings.flexform)
+     *
+     * @param array $settings Plugin settings, for the institutions of the site (settings.siteInstitutions)
+     */
+    public function applyListFilters(EventQuery $query, array $flexform, array $settings = []): void
     {
-        if (($organizers = QueryFilter::toList($flexform['institutionCollection'] ?? '')) !== []) {
-            $query->setOrganizers($organizers);
+        $this->applyOrganizers($query, $flexform, $settings);
+        $this->applyChurchAssociations($query, $flexform, $settings);
+        $this->applyCities($query, (string)($flexform['cities'] ?? ''));
+        if (($zipCodes = QueryFilter::toList($flexform['zipCodes'] ?? '')) !== []) {
+            $query->setZipCodes($zipCodes);
         }
         if (($targetGroups = QueryFilter::toList($flexform['targetGroupCollection'] ?? '')) !== []) {
             $query->setTargetGroups($targetGroups);
@@ -34,20 +57,8 @@ class EventQueryService
             $query->setEventTypes($eventTypes);
         }
 
-        if (!empty($flexform['eventLocation'])) {
-            try {
-                /** @var NapiService $napiService */
-                $napiService = $this->ndkApiFactory->getApi()->factory(NapiService::class);
-                $eventLocation = $napiService->resolveUrl((string)$flexform['eventLocation']);
-                if (method_exists($eventLocation, 'getName') && $eventLocation->getName()) {
-                    $query->setLocation($eventLocation->getName());
-                }
-            } catch (\Throwable) {
-                // Unknown location: no filter
-            }
-        }
-
-        $this->applyCategories($query, $flexform['categories'] ?? '', $flexform['categoryOperator'] ?? '');
+        $this->applyLocations($query, $flexform['eventLocation'] ?? '');
+        $this->applyCategories($query, $flexform['categories'] ?? '', $flexform['categoryOperator'] ?? '', !empty($flexform['includeSubCategories']));
 
         if ($dateFrom = $this->toDate($flexform['dateFrom'] ?? null)) {
             $query->setTimeFrom($dateFrom);
@@ -65,15 +76,13 @@ class EventQueryService
     /**
      * Filters of the map plugins (settings.flexform)
      */
-    public function applyMapFilters(EventQuery $query, array $flexform): void
+    public function applyMapFilters(EventQuery $query, array $flexform, array $settings = []): void
     {
         if (($events = QueryFilter::toList($flexform['eventCollection'] ?? '')) !== []) {
             $query->setEvents($events);
         }
-        if (($organizers = QueryFilter::toList($flexform['institutionCollection'] ?? '')) !== []) {
-            $query->setOrganizers($organizers);
-        }
-        $this->applyCategories($query, $flexform['categories'] ?? '', $flexform['selectCategoryOption'] ?? '');
+        $this->applyOrganizers($query, $flexform, $settings);
+        $this->applyCategories($query, $flexform['categories'] ?? '', $flexform['selectCategoryOption'] ?? '', !empty($flexform['includeSubCategories']));
         if (($cities = QueryFilter::toList($flexform['cities'] ?? '')) !== []) {
             $query->setCities($cities);
         }
@@ -119,19 +128,14 @@ class EventQueryService
 
         $city = (string)$searchRequest->getCity();
         if (strlen($city) > 2) {
-            $zipCodes = $cities = [];
-            foreach (GeneralUtility::trimExplode(',', $city, true) as $value) {
-                if (is_numeric($value)) {
-                    $zipCodes[] = $value;
-                } else {
-                    $cities[] = $value;
-                }
-            }
-            if ($zipCodes !== []) {
-                $query->setZipCodes($zipCodes);
-            }
-            if ($cities !== []) {
-                $query->setCities($cities);
+            $this->applyCities($query, $city);
+        }
+
+        $eventType = (string)$searchRequest->getEventType();
+        if ($eventType !== '') {
+            $eventTypes = $query->getEventTypes();
+            if (!$eventTypes || in_array($eventType, $eventTypes, true)) {
+                $query->setEventTypes([$eventType]);
             }
         }
 
@@ -144,11 +148,135 @@ class EventQueryService
         }
     }
 
-    private function applyCategories(EventQuery $query, mixed $categories, mixed $operator): void
+    /**
+     * Institutions of the plugin, or of the site ("Nur Veranstaltungen der Institution dieser Site").
+     * With sub institutions the NAPI filter organizers_with_parents includes all levels below.
+     */
+    private function applyOrganizers(EventQuery $query, array $flexform, array $settings): void
+    {
+        $organizers = QueryFilter::toList($flexform['institutionCollection'] ?? '');
+        if (!empty($flexform['restrictToSiteInstitution']) && ($siteInstitutions = $this->getSiteInstitutions($settings)) !== []) {
+            $organizers = $siteInstitutions;
+        }
+        if ($organizers === []) {
+            return;
+        }
+        if (!empty($flexform['includeChildInstitutions'])) {
+            $query->setOrganizersWithParents($organizers);
+        } else {
+            $query->setOrganizers($organizers);
+        }
+    }
+
+    /**
+     * Institutions of the site: settings.siteInstitutions (ids or NAPI URLs, comma separated)
+     *
+     * @return list<string>
+     */
+    public function getSiteInstitutions(array $settings): array
+    {
+        return QueryFilter::siteInstitutions($settings['siteInstitutions'] ?? '');
+    }
+
+    /**
+     * "Handlungsraum": church associations (NAPI categories) of the plugin or of the site institution
+     */
+    private function applyChurchAssociations(EventQuery $query, array $flexform, array $settings): void
+    {
+        $value = $flexform['churchAssociation'] ?? '';
+        if ($value === self::CHURCH_ASSOCIATION_OF_SITE) {
+            $churchAssociations = $this->getChurchAssociationsOfSite($settings);
+            // Like nk_event: without a church association of the site no event matches
+            $query->setChurchAssociations($churchAssociations !== [] ? $churchAssociations : ['0']);
+        } elseif (($churchAssociations = QueryFilter::toList($value)) !== []) {
+            $query->setChurchAssociations($churchAssociations);
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function getChurchAssociationsOfSite(array $settings): array
+    {
+        $institutions = $this->getSiteInstitutions($settings);
+        if ($institutions === []) {
+            return [];
+        }
+        $key = implode(',', $institutions);
+        if (isset($this->churchAssociationsOfSite[$key])) {
+            return $this->churchAssociationsOfSite[$key];
+        }
+
+        $churchAssociations = [];
+        try {
+            $institutionQuery = new InstitutionQuery();
+            $institutionQuery->setInstitutions($institutions);
+            $institutionQuery->setInclude(['categories']);
+            foreach ($this->ndkApiFactory->getApi()->factory(InstitutionRepository::class)->get($institutionQuery) as $institution) {
+                foreach ($institution->getCategories() ?? [] as $category) {
+                    if ($category instanceof Category && $category->getIsChurchAssociation()) {
+                        $churchAssociations[] = (string)$category->getId();
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // NAPI not available: no church association
+        }
+        return $this->churchAssociationsOfSite[$key] = array_values(array_unique($churchAssociations));
+    }
+
+    /**
+     * Comma separated cities and zip codes (numbers)
+     */
+    private function applyCities(EventQuery $query, string $value): void
+    {
+        $zipCodes = $cities = [];
+        foreach (GeneralUtility::trimExplode(',', $value, true) as $city) {
+            if (is_numeric($city)) {
+                $zipCodes[] = $city;
+            } else {
+                $cities[] = $city;
+            }
+        }
+        if ($zipCodes !== []) {
+            $query->setZipCodes($zipCodes);
+        }
+        if ($cities !== []) {
+            $query->setCities($cities);
+        }
+    }
+
+    /**
+     * Event locations or institutions (NAPI URLs): the NAPI filters by their names
+     */
+    private function applyLocations(EventQuery $query, mixed $value): void
+    {
+        $names = [];
+        foreach (QueryFilter::toList($value) as $url) {
+            try {
+                /** @var NapiService $napiService */
+                $napiService = $this->ndkApiFactory->getApi()->factory(NapiService::class);
+                $location = $napiService->resolveUrl($url);
+                if (is_object($location) && method_exists($location, 'getName') && $location->getName()) {
+                    $names[] = (string)$location->getName();
+                }
+            } catch (\Throwable) {
+                // Unknown location: no filter
+            }
+        }
+        if ($names !== []) {
+            $query->setLocation(implode(',', array_unique($names)));
+        }
+    }
+
+    private function applyCategories(EventQuery $query, mixed $categories, mixed $operator, bool $includeSubCategories = false): void
     {
         $categories = QueryFilter::toList($categories);
         if ($categories === []) {
             return;
+        }
+        if ($includeSubCategories && $this->categoryTree instanceof CategoryTree) {
+            $categories = $this->categoryTree->withSubCategories($categories);
         }
         if ($operator == QueryInterface::OPERATOR_AND) {
             $query->setCategoriesAnd($categories);

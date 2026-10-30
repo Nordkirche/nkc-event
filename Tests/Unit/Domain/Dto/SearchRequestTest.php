@@ -74,4 +74,14 @@ final class SearchRequestTest extends UnitTestCase
         self::assertSame('', $searchRequest->getCity());
         self::assertSame('12', (string)$searchRequest->getOrganizer());
     }
+
+    #[Test]
+    public function eventTypeIsPartOfTheSearch(): void
+    {
+        $searchRequest = new SearchRequest();
+        $searchRequest->decorate(['eventType' => 'church_service', 'search' => 'Orgel']);
+
+        self::assertSame('church_service', $searchRequest->getEventType());
+        self::assertSame(['search' => 'Orgel', 'eventType' => 'church_service'], $searchRequest->toArray());
+    }
 }

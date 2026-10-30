@@ -34,3 +34,15 @@ settings:
     category: nkcEvent
     type: string
     default: '646'
+  plugin.tx_nkcevent.settings.siteInstitutions:
+    label: 'Institution(en) der Site'
+    description: 'NAPI-IDs, durch Komma getrennt. Für die Option "Nur Veranstaltungen der Institution dieser Site" in den Plugins.'
+    category: nkcEvent
+    type: string
+    default: ''
+  plugin.tx_nkcevent.settings.templateLayout:
+    label: 'Standard-Layout der Listen'
+    description: 'Gilt, wenn im Plugin kein Layout gewählt ist, z. B. Compact. Eigene Layouts: Partial Event/Teaser/<Layout>.html'
+    category: nkcEvent
+    type: string
+    default: ''

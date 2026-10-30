@@ -19,6 +19,12 @@ plugin.tx_nkcevent {
         # cat=plugin.tx_nkcevent/categories; type=string; label=NAPI-Kategorien für hybride Veranstaltungen
         hybridEventCategoryId = 646
 
+        # cat=plugin.tx_nkcevent/institution; type=string; label=Institution(en) der Site (NAPI-IDs, Komma getrennt): für "Nur Veranstaltungen der Institution dieser Site"
+        siteInstitutions =
+
+        # cat=plugin.tx_nkcevent/layout; type=string; label=Standard-Layout der Listen (z. B. Compact), wenn im Plugin keins gewählt ist
+        templateLayout =
+
     }
 }
 

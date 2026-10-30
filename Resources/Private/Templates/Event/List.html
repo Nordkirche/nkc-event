@@ -8,7 +8,7 @@
     <f:section name="main">
 
         <f:if condition="{settings.flexform.showFilter}">
-            <f:render partial="Event/SearchForm" arguments="{searchRequest : searchRequest, searchPid : searchPid, filter: filter, organizer: organizer, content: content}" />
+            <f:render partial="Event/SearchForm" arguments="{searchRequest : searchRequest, searchPid : searchPid, filter: filter, organizer: organizer, content: content, autocompleteUri: autocompleteUri, autocompleteParam: autocompleteParam}" />
         </f:if>
 
             <f:if condition="{settings.flexform.showMap}">
@@ -28,7 +28,7 @@
                 </f:if>
             </f:if>
 
-        <div class="event-list">
+        <div class="event-list event-list--{templateLayout -> f:format.case(mode: 'lower')}">
             <div class="container">
 
                 <f:if condition="{events}">
@@ -41,7 +41,7 @@
                         <f:if condition="{settings.flexform.paginate.mode} > 1">
                             <f:then>
 								<f:for each="{events}" as="event">
-									<f:render partial="Event/Teaser" arguments="{event: event}"/>
+									<f:render partial="{teaserPartial}" arguments="{event: event, settings: settings, templateLayout: templateLayout}"/>
 								</f:for>
 								<f:render partial="Pagination" arguments="{_all}"></f:render>
                             </f:then>
@@ -49,7 +49,7 @@
                                 <div class="ajax-list-wrapper">
                                     <div class="ajax-list">
                                         <f:for each="{events}" as="event">
-                                            <f:render partial="Event/Teaser" arguments="{event: event}"/>
+                                            <f:render partial="{teaserPartial}" arguments="{event: event, settings: settings, templateLayout: templateLayout}"/>
                                         </f:for>
                                     </div>
                                     <f:if condition="{settings.flexform.paginate.mode} == 1">

@@ -19,6 +19,7 @@ final class EventSettings
         'plugin.tx_nkcevent.settings.eventIconName' => 'EXT:nkc_base/Resources/Public/MapIcons/event_%s.svg',
         'plugin.tx_nkcevent.settings.digitalEventCategoryId' => '606,647',
         'plugin.tx_nkcevent.settings.hybridEventCategoryId' => '646',
+        'plugin.tx_nkcevent.settings.siteInstitutions' => '',
         'plugin.tx_nkcevent_main.view.templateRootPath' => 'EXT:nkc_event/Resources/Private/Templates/',
         'plugin.tx_nkcevent_main.view.partialRootPath' => 'EXT:nkc_event/Resources/Private/Partials/',
         'plugin.tx_nkcevent_main.view.layoutRootPath' => 'EXT:nkc_event/Resources/Private/Layouts/',
@@ -71,6 +72,7 @@ final class EventSettings
             'eventIconName' => (string)$this->get($site, 'plugin.tx_nkcevent.settings.eventIconName'),
             'digitalEventCategoryId' => (string)$this->get($site, 'plugin.tx_nkcevent.settings.digitalEventCategoryId'),
             'hybridEventCategoryId' => (string)$this->get($site, 'plugin.tx_nkcevent.settings.hybridEventCategoryId'),
+            'siteInstitutions' => (string)$this->get($site, 'plugin.tx_nkcevent.settings.siteInstitutions'),
             'mapping' => ['eventIcon' => self::EVENT_ICON_MAPPING],
         ];
     }

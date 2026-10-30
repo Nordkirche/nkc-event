@@ -15,9 +15,9 @@ use Nordkirche\NkcEvent\Service\EventMarkerService;
 use Nordkirche\NkcEvent\Service\EventQueryService;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Registry;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
@@ -72,7 +72,7 @@ final class EventMapItemServiceTest extends UnitTestCase
         $ndkApiFactory = new NdkApiFactory(
             new NapiSettings($extensionConfiguration),
             new LogManager(),
-            new TrafficStats(self::createStub(FrontendInterface::class))
+            new TrafficStats(self::createStub(Registry::class))
         );
 
         return new EventMapItemService(

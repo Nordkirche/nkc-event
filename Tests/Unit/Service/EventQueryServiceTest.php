@@ -9,12 +9,13 @@ use Nordkirche\NkcBase\Napi\Traffic\TrafficStats;
 use Nordkirche\NkcBase\Service\NapiSettings;
 use Nordkirche\NkcBase\Service\NdkApiFactory;
 use Nordkirche\NkcEvent\Domain\Dto\SearchRequest;
+use Nordkirche\NkcEvent\Service\CategoryTree;
 use Nordkirche\NkcEvent\Service\EventQueryService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Registry;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 final class EventQueryServiceTest extends UnitTestCase
@@ -25,13 +26,18 @@ final class EventQueryServiceTest extends UnitTestCase
     {
         parent::setUp();
         // The NAPI is only needed to resolve event locations, which these tests don't use
+        $this->subject = new EventQueryService($this->createNdkApiFactory());
+    }
+
+    private function createNdkApiFactory(): NdkApiFactory
+    {
         $extensionConfiguration = self::createStub(ExtensionConfiguration::class);
         $extensionConfiguration->method('get')->willReturn([]);
-        $this->subject = new EventQueryService(new NdkApiFactory(
+        return new NdkApiFactory(
             new NapiSettings($extensionConfiguration),
             new LogManager(),
-            new TrafficStats(self::createStub(FrontendInterface::class))
-        ));
+            new TrafficStats(self::createStub(Registry::class))
+        );
     }
 
     #[Test]
@@ -189,6 +195,112 @@ final class EventQueryServiceTest extends UnitTestCase
 
         $this->subject->applyUserFilters($query, $this->searchRequest(['category' => '647']));
         self::assertSame([647], $query->getCategoriesOr());
+    }
+
+    #[Test]
+    public function siteInstitutionReplacesTheInstitutionsOfThePlugin(): void
+    {
+        $settings = ['siteInstitutions' => '2658, napi:resource/institutions/77'];
+
+        $restricted = new EventQuery();
+        $this->subject->applyListFilters($restricted, ['institutionCollection' => '12', 'restrictToSiteInstitution' => '1'], $settings);
+        $withoutSite = new EventQuery();
+        $this->subject->applyListFilters($withoutSite, ['institutionCollection' => '12', 'restrictToSiteInstitution' => '1']);
+        $notRestricted = new EventQuery();
+        $this->subject->applyListFilters($notRestricted, ['institutionCollection' => '12'], $settings);
+
+        self::assertSame(['2658', '77'], $restricted->getOrganizers());
+        self::assertSame(['12'], $withoutSite->getOrganizers(), 'Without an institution of the site the plugin selection applies');
+        self::assertSame(['12'], $notRestricted->getOrganizers());
+    }
+
+    #[Test]
+    public function subInstitutionsUseTheNapiFilterWithParents(): void
+    {
+        $list = new EventQuery();
+        $this->subject->applyListFilters($list, ['restrictToSiteInstitution' => '1', 'includeChildInstitutions' => '1'], ['siteInstitutions' => '2658']);
+        $map = new EventQuery();
+        $this->subject->applyMapFilters($map, ['institutionCollection' => '5', 'includeChildInstitutions' => '1']);
+
+        self::assertSame(['2658'], $list->getOrganizersWithParents());
+        self::assertSame([], $list->getOrganizers());
+        self::assertSame(['5'], $map->getOrganizersWithParents());
+        self::assertSame('2658', $list->returnUrlParameters()['filter']['organizers_with_parents'] ?? null);
+    }
+
+    #[Test]
+    public function citiesAndZipCodesOfThePlugin(): void
+    {
+        $query = new EventQuery();
+        $this->subject->applyListFilters($query, ['cities' => 'Kappeln, 24376, Schleswig', 'zipCodes' => '24837']);
+
+        self::assertSame(['Kappeln', 'Schleswig'], $query->getCities());
+        self::assertSame(['24837'], $query->getZipCodes(), 'The zip code field wins over numbers in the cities');
+    }
+
+    #[Test]
+    public function subCategoriesAreAddedOnRequest(): void
+    {
+        $categoryTree = self::createStub(CategoryTree::class);
+        $categoryTree->method('withSubCategories')->willReturn(['218', '221', '222']);
+        $subject = new EventQueryService($this->createNdkApiFactory(), $categoryTree);
+
+        $with = new EventQuery();
+        $subject->applyListFilters($with, ['categories' => '218', 'includeSubCategories' => '1']);
+        $without = new EventQuery();
+        $subject->applyListFilters($without, ['categories' => '218']);
+
+        self::assertSame(['218', '221', '222'], $with->getCategoriesOr());
+        self::assertSame(['218'], $without->getCategoriesOr());
+    }
+
+    #[Test]
+    public function churchAssociationOfThePluginOrOfTheSite(): void
+    {
+        $subject = new class ($this->createNdkApiFactory()) extends EventQueryService {
+            public array $siteAssociations = [];
+
+            protected function getChurchAssociationsOfSite(array $settings): array
+            {
+                return $this->siteAssociations;
+            }
+        };
+
+        $fixed = new EventQuery();
+        $subject->applyListFilters($fixed, ['churchAssociation' => '546']);
+        $subject->siteAssociations = ['547'];
+        $ofSite = new EventQuery();
+        $subject->applyListFilters($ofSite, ['churchAssociation' => 'site'], ['siteInstitutions' => '1']);
+        $subject->siteAssociations = [];
+        $unknown = new EventQuery();
+        $subject->applyListFilters($unknown, ['churchAssociation' => 'site']);
+
+        self::assertSame(['546'], $fixed->getChurchAssociations());
+        self::assertSame(['547'], $ofSite->getChurchAssociations());
+        self::assertSame(['0'], $unknown->getChurchAssociations(), 'Like nk_event: no events without a church association of the site');
+    }
+
+    #[Test]
+    public function visitorsCanOnlyNarrowTheEventTypesOfThePlugin(): void
+    {
+        $query = new EventQuery();
+        $query->setEventTypes(['music', 'church_service']);
+        $this->subject->applyUserFilters($query, $this->searchRequest(['eventType' => 'leisure']));
+        self::assertSame(['music', 'church_service'], $query->getEventTypes());
+
+        $this->subject->applyUserFilters($query, $this->searchRequest(['eventType' => 'music']));
+        self::assertSame(['music'], $query->getEventTypes());
+
+        $open = new EventQuery();
+        $this->subject->applyUserFilters($open, $this->searchRequest(['eventType' => 'Leisure<script>']));
+        self::assertSame(['leisurescript'], $open->getEventTypes(), 'Only the characters of event types');
+    }
+
+    #[Test]
+    public function siteInstitutionsAreIds(): void
+    {
+        self::assertSame(['1', '22'], $this->subject->getSiteInstitutions(['siteInstitutions' => 'napi:resource/institutions/1, 22, , 1']));
+        self::assertSame([], $this->subject->getSiteInstitutions(['siteInstitutions' => '{rootline:field}']), 'Unresolved placeholders are no institution');
     }
 
     private function searchRequest(array $data): SearchRequest

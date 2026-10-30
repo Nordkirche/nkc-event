@@ -15,6 +15,8 @@ use Nordkirche\NkcEvent\Domain\Dto\SearchRequest;
 use Nordkirche\NkcEvent\Event\ModifyAssignedListValuesEvent;
 use Nordkirche\NkcEvent\Event\ModifyAssignedValuesEvent;
 use Nordkirche\NkcEvent\Event\ModifyEventQueryEvent;
+use Nordkirche\NkcEvent\Service\CalendarBuilder;
+use Nordkirche\NkcEvent\Service\DisplayedEvents;
 use Nordkirche\NkcEvent\Service\EventMapItemService;
 use Nordkirche\NkcEvent\Service\EventMarkerService;
 use Nordkirche\NkcEvent\Service\EventQueryService;
@@ -29,7 +31,7 @@ use TYPO3\CMS\Frontend\Controller\ErrorController;
 use TYPO3\CMS\Frontend\Page\PageAccessFailureReasons;
 
 /**
- * Plugins "Veranstaltungen: Liste", "Detail", "Suchformular" and "Umleitung"
+ * Plugins "Veranstaltungen: Liste", "Kalender", "Detail", "Suchformular" and "Umleitung"
  */
 class EventController extends BaseController
 {
@@ -37,6 +39,16 @@ class EventController extends BaseController
      * Up to this number of events the list map gets its markers directly
      */
     private const INLINE_MARKER_LIMIT = 25;
+
+    /**
+     * Suggestions of the search field
+     */
+    private const AUTOCOMPLETE_LIMIT = 8;
+
+    /**
+     * Events of a month in the calendar, at most (pages of 100)
+     */
+    private const CALENDAR_MAX_PAGES = 10;
 
     /**
      * @var EventRepository
@@ -56,6 +68,8 @@ class EventController extends BaseController
         private readonly TemplateRenderer $templateRenderer,
         private readonly ExportService $exportService,
         private readonly SearchFilterService $searchFilterService,
+        private readonly DisplayedEvents $displayedEvents,
+        private readonly CalendarBuilder $calendarBuilder,
     ) {}
 
     public function initializeAction(): void
@@ -66,7 +80,7 @@ class EventController extends BaseController
 
         if ($this->arguments->hasArgument('searchRequest')) {
             $this->arguments->getArgument('searchRequest')->getPropertyMappingConfiguration()
-                ->allowProperties('search', 'city', 'location', 'dateFrom', 'dateTo', 'category', 'organizer');
+                ->allowProperties('search', 'city', 'location', 'dateFrom', 'dateTo', 'category', 'eventType', 'organizer');
         }
     }
 
@@ -74,8 +88,9 @@ class EventController extends BaseController
     {
         $query = new EventQuery();
         $query->setInclude([Event::RELATION_ADDRESS, Event::RELATION_CHIEF_ORGANIZER, Event::RELATION_CATEGORY]);
-        $this->queryService->applyListFilters($query, (array)($this->settings['flexform'] ?? []));
+        $this->queryService->applyListFilters($query, (array)($this->settings['flexform'] ?? []), $this->settings);
 
+        $searchRequest ??= $this->getPresetSearchRequest();
         if ($searchRequest instanceof SearchRequest) {
             $this->queryService->applyUserFilters($query, $searchRequest);
         } else {
@@ -86,11 +101,23 @@ class EventController extends BaseController
 
         $this->setPagination($query, $currentPage);
 
+        // Leave out the events of the lists above (only without pagination: the pages would shift)
+        $excludeDisplayed = !empty($this->settings['flexform']['excludeAlreadyDisplayed']) && !$this->isPaginationActive() && $this->displayedEvents->count() > 0;
+        $limit = $query->getPageSize();
+        if ($excludeDisplayed) {
+            $query->setPageSize(min(100, $limit + $this->displayedEvents->count()));
+        }
+
         /** @var ModifyEventQueryEvent $event */
         $event = $this->eventDispatcher->dispatch(new ModifyEventQueryEvent($this, $query, $this->request, $this->settings));
         $query = $event->getEventQuery();
 
         $events = $this->fetchList($this->eventRepository, $query);
+        if ($excludeDisplayed) {
+            $events = $this->displayedEvents->filter($events, $limit);
+            $query->setPageSize($limit);
+        }
+        $this->displayedEvents->add($events);
         $content = $this->getContentRow();
         $isPageView = $this->isPageView();
 
@@ -129,6 +156,10 @@ class EventController extends BaseController
             'requestUri' => $requestUri,
             'organizer' => $searchRequest->getOrganizer() ? $this->getOrganizer((int)$searchRequest->getOrganizer()) : false,
             'pagination' => $this->getPagination($events, $currentPage),
+            'templateLayout' => $this->getTemplateLayout(),
+            'teaserPartial' => $this->getLayoutPartial('Event/Teaser'),
+            'autocompleteUri' => $this->getAutocompleteUri(),
+            'autocompleteParam' => $this->getAutocompleteParameter(),
         ];
 
         /** @var ModifyAssignedListValuesEvent $event */
@@ -157,12 +188,89 @@ class EventController extends BaseController
             );
         }
 
+        if ($searchRequest->toArray() === [] && ($preset = $this->getPresetSearchRequest()) instanceof SearchRequest) {
+            $searchRequest = $preset;
+        }
+
         $this->view->assignMultiple([
             'searchPid' => (int)($this->settings['flexform']['pidList'] ?? 0) ?: $this->getCurrentPageId(),
             'filter' => $this->getFilterValues(),
             'searchRequest' => $searchRequest,
+            'autocompleteUri' => $this->getAutocompleteUri(),
+            'autocompleteParam' => $this->getAutocompleteParameter(),
         ]);
         return $this->htmlResponse();
+    }
+
+    /**
+     * Month sheet with the events of each day (plugin "Veranstaltungen: Kalender")
+     */
+    public function calendarAction(int $month = 0, int $year = 0): ResponseInterface
+    {
+        [$year, $month] = $this->calendarBuilder->normalize($year, $month);
+        $start = new \DateTime(sprintf('%04d-%02d-01 00:00:00', $year, $month));
+        $end = (clone $start)->modify('last day of this month')->setTime(23, 59, 59);
+
+        $query = new EventQuery();
+        $query->setInclude([Event::RELATION_ADDRESS, Event::RELATION_CATEGORY]);
+        $this->queryService->applyListFilters($query, (array)($this->settings['flexform'] ?? []), $this->settings);
+        // All events of the month, also those that began before
+        $query->setTimeFromStart($start);
+        $query->setTimeToEnd($end);
+        $query->setPageSize(100);
+
+        /** @var ModifyEventQueryEvent $event */
+        $event = $this->eventDispatcher->dispatch(new ModifyEventQueryEvent($this, $query, $this->request, $this->settings));
+        $query = $event->getEventQuery();
+
+        $events = [];
+        for ($page = 1; $page <= self::CALENDAR_MAX_PAGES; $page++) {
+            $query->setPageNumber($page);
+            $result = $this->fetchList($this->eventRepository, $query);
+            foreach ($result as $item) {
+                $events[] = $item;
+            }
+            if ($page >= $result->getPageCount()) {
+                break;
+            }
+        }
+
+        $content = $this->getContentRow();
+        $this->view->assignMultiple([
+            'calendar' => $this->calendarBuilder->build($year, $month, $events),
+            'content' => $content,
+            'ajaxTypeNum' => (int)($this->settings['ajaxListTypeNum'] ?? 0),
+        ]);
+        return $this->htmlResponse();
+    }
+
+    /**
+     * Event titles for the search field (JSON), with the filters of the plugin
+     */
+    public function autocompleteAction(string $q = ''): ResponseInterface
+    {
+        $q = trim($q);
+        if (mb_strlen($q) < 3) {
+            return $this->jsonResponse('[]');
+        }
+
+        $query = new EventQuery();
+        $query->setPageSize(self::AUTOCOMPLETE_LIMIT * 2);
+        $this->queryService->applyListFilters($query, (array)($this->settings['flexform'] ?? []), $this->settings);
+        $query->setQuery($q);
+        $query->setTimeFromStart(new \DateTime('today'));
+
+        $titles = [];
+        foreach ($this->fetchList($this->eventRepository, $query) as $event) {
+            $title = trim((string)$event->getTitle());
+            if ($title !== '' && !in_array($title, $titles, true)) {
+                $titles[] = $title;
+            }
+            if (count($titles) >= self::AUTOCOMPLETE_LIMIT) {
+                break;
+            }
+        }
+        return $this->jsonResponse((string)json_encode($titles, JSON_UNESCAPED_UNICODE));
     }
 
     public function searchAction(?SearchRequest $searchRequest = null): ResponseInterface
@@ -306,6 +414,47 @@ class EventController extends BaseController
         } catch (\Throwable) {
             return false;
         }
+    }
+
+    /**
+     * Search of the visitors preset in the plugin (settings.flexform.presets), if there is any
+     */
+    private function getPresetSearchRequest(): ?SearchRequest
+    {
+        $presets = array_filter(
+            (array)($this->settings['flexform']['presets'] ?? []),
+            static fn(mixed $value): bool => is_scalar($value) && (string)$value !== '' && (string)$value !== '0'
+        );
+        if ($presets === []) {
+            return null;
+        }
+        $searchRequest = new SearchRequest();
+        $searchRequest->decorate(array_intersect_key($presets, array_flip(['city', 'eventType', 'category', 'search'])));
+        return $searchRequest->toArray() !== [] ? $searchRequest : null;
+    }
+
+    /**
+     * Suggestions for the search field (settings.filter.autocomplete)
+     */
+    private function getAutocompleteUri(): string
+    {
+        $typeNum = (int)($this->settings['ajaxTypeNum'] ?? 0);
+        if (empty($this->settings['filter']['autocomplete']) || $typeNum <= 0) {
+            return '';
+        }
+        return $this->uriBuilder->reset()
+            ->setTargetPageUid($this->getCurrentPageId())
+            ->setTargetPageType($typeNum)
+            ->setArguments(['uid' => $this->getContentRow()['uid'] ?? 0])
+            ->uriFor('autocomplete');
+    }
+
+    /**
+     * Query parameter of the search term for the autocomplete action
+     */
+    private function getAutocompleteParameter(): string
+    {
+        return 'tx_nkcevent_' . strtolower((string)$this->request->getPluginName()) . '[q]';
     }
 
     private function getFilterValues(): array

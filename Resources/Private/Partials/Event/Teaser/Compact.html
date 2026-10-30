@@ -1,0 +1,14 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+<f:comment>Layout "Kompakt": date, title and place in one line</f:comment>
+<f:variable name="pidSingle" value="{f:if(condition: settings.flexform.pidSingle, then: settings.flexform.pidSingle, else: settings.flexform.pidEventSingle)}" />
+<div class="event-teaser event-teaser--compact">
+    <time datetime="{event.startsAt -> f:format.date(format: 'c')}" class="event-teaser__date">
+        <f:render partial="Event/DateShort" arguments="{event: event}" />
+    </time>
+    <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}" class="event-teaser__title">{event.title}</f:link.page>
+    <f:if condition="{event.locationName}">
+        <span class="event-teaser__location">{event.locationName}</span>
+    </f:if>
+</div>
+</html>

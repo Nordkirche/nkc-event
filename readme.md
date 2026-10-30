@@ -3,6 +3,7 @@
 Die Extension stellt PlugIns bereit, um Inhalte der Nordkirche API (Veranstaltungen) auf einer Website darzustellen.
 
 * Listenansicht
+* Kalender (Monatsansicht)
 * Detailansicht (Visitenkarte)
 * Suchformular
 
@@ -35,6 +36,8 @@ Die Plugins finden Sie im Inhaltselement-Assistenten in der Gruppe **Nordkirche 
 | `plugin.tx_nkcevent.settings.eventShortLink` | Kurzlink auf die Seite mit dem Umleitungs-Plugin (Info-Fenster der Karte) |
 | `plugin.tx_nkcevent.settings.eventIconName` | Karten-Icons |
 | `plugin.tx_nkcevent.settings.digitalEventCategoryId`, `hybridEventCategoryId` | NAPI-Kategorien für digitale bzw. hybride Veranstaltungen |
+| `plugin.tx_nkcevent.settings.siteInstitutions` | Institution(en) der Site (NAPI-IDs), für „Nur Veranstaltungen der Institution dieser Site“ |
+| `plugin.tx_nkcevent.settings.templateLayout` | Layout der Listen, wenn im Plugin keins gewählt ist |
 
 Diese Werte gelten auch beim Aufwärmen des Karten-Caches auf der Kommandozeile und für die
 Info-Fenster der Karten-Marker.
@@ -53,6 +56,72 @@ Es gibt im statischen TypoScript umfangreiche Konfigurationen, die für die eige
 Grunsätzlich ist es so, dass Konfigurationen teilweise sowohl in TypoScript als auch in den Plug-Ins möglich sind. Hier zu beachten, dass Plug-In Konfigurationen TypoScript überschreiben, wenn sie einen Wert haben.
 
 Die Templates der Extension haben ein sehr rudimentäres Markup, um die Möglichkeiten der Extension zu zeigen. Die darzustellenen Inhalte sind so komplex, dass ein Standard-Layout wenig Sinn ergeben hätte.
+
+## Plugins
+
+### Filter der Liste, des Kalenders und der Karten
+
+Im Reiter „Funktion“ werden die Veranstaltungen eingeschränkt. Alle Bedingungen gelten zusammen.
+
+| Feld | Wirkung |
+| --- | --- |
+| Veranstaltungstypen, Zielgruppen | NAPI-Typen bzw. -Zielgruppen |
+| Institutionen | Veranstalter (`filter[organizers]`) |
+| **Nur Veranstaltungen der Institution dieser Site** | Veranstalter aus `settings.siteInstitutions`, ersetzt die Institutionen des Plugins. Ohne Wert gelten die Institutionen des Plugins. |
+| **Unterinstitutionen einbeziehen** | Veranstaltungen der Institutionen und aller Einrichtungen darunter (NAPI-Filter `organizers_with_parents`, alle Ebenen) |
+| Veranstaltungsorte | Veranstaltungsorte oder Institutionen, mehrere möglich (NAPI-Filter `location` mit ihren Namen) |
+| Orte, Postleitzahlen | Ortsnamen und PLZ, durch Komma getrennt |
+| **Handlungsraum** | NAPI-Kategorie mit `is_church_association`, oder „Handlungsraum der Institution dieser Site“ (aus den Kategorien der Site-Institution; ohne Handlungsraum keine Treffer) |
+| Kategorien, **Unterkategorien einbeziehen** | NAPI-Kategorien, auf Wunsch mit allen Unterkategorien (aus `sys_category`, siehe `nkc_base:napi_sync`) |
+| Zeitraum, die folgenden x Tage, Umkreis | wie bisher |
+
+Die Institution der Site kommt aus TypoScript, z. B. pro Gemeinde-Teilbaum:
+
+    plugin.tx_nkcevent.settings.siteInstitutions = 2658
+
+Steht sie nur im TypoScript der Seite (z. B. aus der Rootline aufgelöst), überspringt
+`nkc_base:map_cache` die Karten dieser Plugins; die Marker entstehen beim ersten Aufruf der
+Seite. Als Site-Setting hinterlegt, kann auch die Kommandozeile die Marker aufbauen.
+
+### Ausgabe der Liste
+
+* **Layout der Liste:** „Standard“ (Partial `Event/Teaser`) und „Kompakt“ (`Event/Teaser/Compact`).
+  Eigene Layouts per Page TSconfig, mit einem Partial `Event/Teaser/<Layout>.html`:
+
+        tx_nkcevent.templateLayouts {
+            NoImage = Ohne Bild
+        }
+
+  Fehlt das Partial, wird `Event/Teaser` verwendet. Im Template stehen `templateLayout` und
+  `teaserPartial` zur Verfügung, die Liste hat die Klasse `event-list--<layout>`.
+* **Bereits angezeigte Veranstaltungen nicht darstellen:** Die Liste lässt Veranstaltungen
+  weg, die eine Liste weiter oben auf derselben Seite schon zeigt, und füllt mit den nächsten
+  auf. Nur ohne Paginierung, da sich sonst die Seiten verschieben würden.
+
+### Suchformular
+
+In der Liste („Nutzer sollen die Liste filtern können“) und im Plugin „Suchformular“:
+
+* **Rubriken:** Auswahl von Veranstaltungstypen (Feld `eventType` der Suche). Besucher können
+  nur innerhalb der Typen des Plugins einschränken.
+* **Vorbelegung:** Ort/PLZ und Rubrik, solange Besucher nichts anderes suchen.
+* **Suchbegriffe vorschlagen:** Titel passender Veranstaltungen als Vorschläge im Suchfeld
+  (`<datalist>`, Action `autocomplete` über den AJAX-Seitentyp, mit den Filtern des Plugins).
+
+### Kalender
+
+Das Plugin „Veranstaltungskalender“ zeigt einen Monat (Montag bis Sonntag) mit den
+Veranstaltungen jedes Tages; mehrtägige Veranstaltungen stehen an jedem ihrer Tage. Die Filter
+sind dieselben wie in der Liste. Geblättert wird ohne Neuladen (`calendar.js`, AJAX-Seitentyp),
+die Links funktionieren auch ohne JavaScript: `/<seite>/2026/11`. Auf schmalen Bildschirmen
+erscheinen nur die Tage mit Veranstaltungen untereinander.
+
+## Umstieg von nk_event
+
+Die Plugins der alten Extension nk_event (inkl. Filter-Datensätze, Datumsvorlagen und
+Rechte der Benutzergruppen) übernimmt die separate Extension
+**nordkirche/nk2nkc-migration** (Extension nk2nkc_migration). Sie wird nur für die Migration
+installiert und danach wieder entfernt.
 
 ## PSR-14 Events
 Es gibt PSR-14 Events, um die NAPI Queries und die Ausgabe der Daten anzupassen:
@@ -109,11 +178,12 @@ in der Site-Konfiguration ist nichts einzutragen:
 |---|---|
 | Veranstaltung | `/<seite>/titel-der-veranstaltung`, iCal: `/<seite>/titel-der-veranstaltung/ical` |
 | Liste | `/<seite>/seite/2`, Suche: `/<seite>/suche` |
+| Kalender | `/<seite>/2026/11` |
 | Karte und Liste | `/<seite>/seite/2` |
 
 Veranstaltungen mit gleichem Titel bekommen `-1`, `-2` usw. angehängt. Überschreiben lässt
 sich jeder Wert in der Site-Konfiguration unter demselben Schlüssel (`NkcEventShow`,
-`NkcEventList`, `NkcEventMapList`), siehe readme von nkc_base.
+`NkcEventList`, `NkcEventMapList`, `NkcEventCalendar`), siehe readme von nkc_base.
 
 ## Upgrade auf Version 13
 

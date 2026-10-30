@@ -43,7 +43,7 @@ class EventMapItemService
         $query->setPageNumber(max($page, 1));
         $query->setInclude([Event::RELATION_ADDRESS, Event::RELATION_CATEGORY, Event::RELATION_CHIEF_ORGANIZER]);
         $query->setFacets([Event::FACET_EVENT_TYPE]);
-        $this->queryService->applyMapFilters($query, (array)($settings['flexform'] ?? []));
+        $this->queryService->applyMapFilters($query, (array)($settings['flexform'] ?? []), $settings);
 
         $query = $this->dispatchQueryEvent($query, $settings, ModifyMapEventQueryEvent::CONTEXT_MAP);
         return $this->fetch($query, $allItems);
@@ -60,7 +60,7 @@ class EventMapItemService
         $query->setPageSize($pageSize);
         $query->setPageNumber(max($page, 1));
         $query->setInclude([Event::RELATION_ADDRESS, Event::RELATION_CATEGORY]);
-        $this->queryService->applyListFilters($query, (array)($settings['flexform'] ?? []));
+        $this->queryService->applyListFilters($query, (array)($settings['flexform'] ?? []), $settings);
         if ($searchRequest instanceof SearchRequest) {
             $this->queryService->applyUserFilters($query, $searchRequest);
         } else {

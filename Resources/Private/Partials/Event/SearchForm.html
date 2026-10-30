@@ -19,8 +19,10 @@
 
     <form action="{f:uri.action(pluginName: 'list', controller: 'Event', action: 'search', pageUid: searchPid)}" method="post">
         <input type="hidden" name="tx_nkcevent_list[searchRequest][organizer]" value="{searchRequest.organizer}" />
-        <f:if condition="{filter.cities}">
+        <f:if condition="{filter.cities} || {filter.categories} || {filter.eventTypes}">
             <f:asset.script identifier="nkcBaseSearchFilter" src="EXT:nkc_base/Resources/Public/JavaScript/searchFilter.js" defer="1" />
+        </f:if>
+        <f:if condition="{filter.cities}">
             <label>Orte</label>
             <ul data-search-field="city" data-search-reset="location">
                 <li data-caption="Orte" data-value="">Orte</li>
@@ -57,6 +59,21 @@
             </ul>
         </f:if>
 
+        <f:if condition="{filter.eventTypes}">
+            <label><f:translate key="LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.eventType" /></label>
+            <input name="tx_nkcevent_list[searchRequest][eventType]" type="hidden" value="{searchRequest.eventType}" />
+            <ul data-search-field="eventType">
+                <li data-caption="{f:translate(key: 'LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.eventType')}" data-value="">
+                    <a href="#" role="button"><f:translate key="LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.eventType" /></a>
+                </li>
+                <f:for each="{filter.eventTypes}" as="eventType">
+                    <li data-caption="{eventType.label}" data-value="{eventType.value}"{f:if(condition: '{eventType.value} == {searchRequest.eventType}', then: ' class="active" aria-current="true"')}>
+                        <a href="#" role="button">{eventType.label}</a>
+                    </li>
+                </f:for>
+            </ul>
+        </f:if>
+
         <f:if condition="{searchRequest.dateFrom} && {searchRequest.dateTo}">
             <f:then>
                 {searchRequest.dateFrom->f:format.date(format: 'd.m.Y')} bis {searchRequest.dateTo->f:format.date(format: 'd.m.Y')}
@@ -84,7 +101,17 @@
         <input name="tx_nkcevent_list[searchRequest][dateFrom]" value="{searchRequest.dateFrom->f:format.date(format: 'Y-m-d')}" type="date" min="{f:format.date(date: 'today', format: 'Y-m-d')}" aria-label="{f:translate(key: 'LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.dateFrom')}" />
         <input name="tx_nkcevent_list[searchRequest][dateTo]" value="{searchRequest.dateTo->f:format.date(format: 'Y-m-d')}" type="date" min="{f:format.date(date: 'today', format: 'Y-m-d')}" aria-label="{f:translate(key: 'LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.dateTo')}" />
 
-        <input name="tx_nkcevent_list[searchRequest][search]" type="text" placeholder="Suchbegriff" value="{searchRequest.search}" />
+        <f:if condition="{autocompleteUri}">
+            <f:then>
+                <f:asset.script identifier="nkcEventAutocomplete" src="EXT:nkc_event/Resources/Public/JavaScript/autocomplete.js" defer="1" />
+                <input name="tx_nkcevent_list[searchRequest][search]" type="search" placeholder="{f:translate(key: 'LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.searchTerm')}" value="{searchRequest.search}"
+                       autocomplete="off" list="nkc-event-suggestions-{content.uid}" data-autocomplete-uri="{autocompleteUri}" data-autocomplete-param="{autocompleteParam}" />
+                <datalist id="nkc-event-suggestions-{content.uid}"></datalist>
+            </f:then>
+            <f:else>
+                <input name="tx_nkcevent_list[searchRequest][search]" type="text" placeholder="{f:translate(key: 'LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.searchTerm')}" value="{searchRequest.search}" />
+            </f:else>
+        </f:if>
 
         <button type="submit"><f:translate key="LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:search.submit" /></button>
 

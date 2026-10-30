@@ -1,0 +1,80 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+    <f:layout name="Default" />
+
+    <f:section name="main">
+        <f:variable name="ll" value="LLL:EXT:nkc_event/Resources/Private/Language/locallang.xlf:" />
+        <f:variable name="pidSingle" value="{f:if(condition: settings.flexform.pidSingle, then: settings.flexform.pidSingle, else: settings.flexform.pidEventSingle)}" />
+        <f:variable name="monthLabel"><f:translate key="{ll}month.{calendar.month}" /> {calendar.year}</f:variable>
+
+        <f:if condition="{ajaxTypeNum}">
+            <f:asset.script identifier="nkcEventCalendar" src="EXT:nkc_event/Resources/Public/JavaScript/calendar.js" defer="1" />
+        </f:if>
+
+        <div class="nkc-calendar" id="nkc-calendar-{content.uid}" data-nkc-calendar="1" aria-live="polite">
+            <div class="nkc-calendar__header">
+                <f:render section="navigation" arguments="{target: calendar.previous, direction: 'previous', ajaxTypeNum: ajaxTypeNum, content: content, ll: ll}" />
+                <h2 class="nkc-calendar__month">{monthLabel}</h2>
+                <f:render section="navigation" arguments="{target: calendar.next, direction: 'next', ajaxTypeNum: ajaxTypeNum, content: content, ll: ll}" />
+            </div>
+
+            <table class="nkc-calendar__sheet">
+                <caption class="nkc-calendar__caption">{monthLabel}</caption>
+                <thead>
+                    <tr>
+                        <f:for each="{0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 0}" as="weekday">
+                            <th scope="col"><f:translate key="{ll}date.day.{weekday}" /></th>
+                        </f:for>
+                    </tr>
+                </thead>
+                <tbody>
+                    <f:for each="{calendar.weeks}" as="week">
+                        <tr>
+                            <f:for each="{week.days}" as="day">
+                                <td class="nkc-calendar__day{f:if(condition: day.inMonth, else: ' nkc-calendar__day--outside')}{f:if(condition: day.isToday, then: ' nkc-calendar__day--today')}{f:if(condition: day.events, then: ' nkc-calendar__day--events')}">
+                                    <f:if condition="{day.inMonth}">
+                                        <time datetime="{day.date -> f:format.date(format: 'Y-m-d')}" class="nkc-calendar__date"{f:if(condition: day.isToday, then: ' aria-current="date"')}>{day.date -> f:format.date(format: 'j')}</time>
+                                        <f:if condition="{day.events}">
+                                            <ul class="nkc-calendar__events" aria-label="{f:translate(key: '{ll}calendar.eventsOfDay', arguments: {0: '{day.date -> f:format.date(format: \'d.m.Y\')}'})}">
+                                                <f:for each="{day.events}" as="event">
+                                                    <li class="nkc-calendar__event">
+                                                        <f:if condition="{f:format.date(date: event.startsAt, format: 'Y-m-d')} == {f:format.date(date: day.date, format: 'Y-m-d')}">
+                                                            <span class="nkc-calendar__time">{event.startsAt -> f:format.date(format: 'H:i')}</span>
+                                                        </f:if>
+                                                        <f:link.page pageUid="{pidSingle}" additionalParams="{tx_nkcevent_show: {uid: event.id}}">{event.title}</f:link.page>
+                                                    </li>
+                                                </f:for>
+                                            </ul>
+                                        </f:if>
+                                    </f:if>
+                                </td>
+                            </f:for>
+                        </tr>
+                    </f:for>
+                </tbody>
+            </table>
+
+            <f:if condition="{calendar.eventCount} == 0">
+                <p class="nkc-calendar__empty"><f:translate key="{ll}calendar.noEvents" /></p>
+            </f:if>
+        </div>
+    </f:section>
+
+    <f:section name="navigation">
+        <f:variable name="label"><f:translate key="{ll}calendar.{direction}" /></f:variable>
+        <f:if condition="{ajaxTypeNum}">
+            <f:then>
+                <f:variable name="ajaxUri" value="{f:uri.action(action: 'calendar', arguments: {month: target.month, year: target.year}, additionalParams: {type: ajaxTypeNum, uid: content.uid})}" />
+                <f:link.action action="calendar" arguments="{month: target.month, year: target.year}" class="nkc-calendar__nav nkc-calendar__nav--{direction}" title="{label}" additionalAttributes="{'data-calendar-uri': ajaxUri, 'aria-label': label}">
+                    <span aria-hidden="true">{f:if(condition: '{direction} == \'previous\'', then: '‹', else: '›')}</span>
+                </f:link.action>
+            </f:then>
+            <f:else>
+                <f:link.action action="calendar" arguments="{month: target.month, year: target.year}" class="nkc-calendar__nav nkc-calendar__nav--{direction}" title="{label}" additionalAttributes="{'aria-label': label}">
+                    <span aria-hidden="true">{f:if(condition: '{direction} == \'previous\'', then: '‹', else: '›')}</span>
+                </f:link.action>
+            </f:else>
+        </f:if>
+    </f:section>
+</html>

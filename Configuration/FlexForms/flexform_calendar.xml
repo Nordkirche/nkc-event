@@ -1,0 +1,275 @@
+<T3DataStructure>
+	<sheets>
+		<sDEF>
+			<ROOT>
+					<sheetTitle>Funktion</sheetTitle>
+				<type>array</type>
+				<el>
+
+					<settings.flexform.eventTypes>
+							<label>Veranstaltungen diese Typs darstellen</label>
+							<exclude>1</exclude>
+							<config>
+								<type>select</type>
+								<renderType>selectMultipleSideBySide</renderType>
+								<minitems>0</minitems>
+								<maxitems>20</maxitems>
+								<items>
+									<numIndex index="0">
+										<label>Gottesdienste</label>
+										<value>church_service</value>
+									</numIndex>
+									<numIndex index="1">
+										<label>Gremium</label>
+										<value>committee</value>
+									</numIndex>
+									<numIndex index="2">
+										<label>Sonstiges</label>
+										<value>default</value>
+									</numIndex>
+									<numIndex index="3">
+										<label>Bildung</label>
+										<value>edu</value>
+									</numIndex>
+									<numIndex index="4">
+										<label>Gemeindeleben</label>
+										<value>event</value>
+									</numIndex>
+									<numIndex index="5">
+										<label>Freizeit</label>
+										<value>leisure</value>
+									</numIndex>
+									<numIndex index="6">
+										<label>Konzert</label>
+										<value>music</value>
+									</numIndex>
+									<numIndex index="7">
+										<label>Spiritualität</label>
+										<value>spirituality</value>
+									</numIndex>
+								</items>
+							</config>
+					</settings.flexform.eventTypes>
+
+					<settings.flexform.institutionCollection>
+							<label>Veranstaltungen dieser Institutionen darstellen</label>
+							<config>
+								<type>user</type>
+								<renderType>napiItemSelector</renderType>
+								<allowed>institution</allowed>
+								<minItems>0</minItems>
+								<maxItems>99</maxItems>
+								<size>10</size>
+							</config>
+					</settings.flexform.institutionCollection>
+
+					<settings.flexform.restrictToSiteInstitution>
+							<label>Nur Veranstaltungen der Institution dieser Site (TypoScript: plugin.tx_nkcevent.settings.siteInstitutions)</label>
+							<config>
+								<type>check</type>
+								<default>0</default>
+							</config>
+					</settings.flexform.restrictToSiteInstitution>
+
+					<settings.flexform.includeChildInstitutions>
+							<label>Veranstaltungen der Unterinstitutionen einbeziehen (alle Ebenen)</label>
+							<config>
+								<type>check</type>
+								<default>0</default>
+							</config>
+					</settings.flexform.includeChildInstitutions>
+
+					<settings.flexform.eventLocation>
+							<label>Veranstaltungen an diesem Ort darstellen</label>
+							<config>
+								<type>user</type>
+								<renderType>napiItemSelector</renderType>
+								<allowed>eventLocation,institution</allowed>
+								<minItems>0</minItems>
+								<maxItems>20</maxItems>
+								<size>5</size>
+							</config>
+					</settings.flexform.eventLocation>
+
+					<settings.flexform.cities>
+							<label>Veranstaltungen in diesen Orten darstellen (Namen oder PLZ, durch Komma getrennt)</label>
+							<config>
+								<type>input</type>
+								<size>40</size>
+							</config>
+					</settings.flexform.cities>
+
+					<settings.flexform.zipCodes>
+							<label>Veranstaltungen mit diesen Postleitzahlen darstellen (durch Komma getrennt)</label>
+							<config>
+								<type>input</type>
+								<size>40</size>
+							</config>
+					</settings.flexform.zipCodes>
+
+					<settings.flexform.churchAssociation>
+							<label>Handlungsraum</label>
+							<config>
+								<type>select</type>
+								<renderType>selectSingle</renderType>
+								<items>
+									<numIndex index="0">
+										<label></label>
+										<value></value>
+									</numIndex>
+									<numIndex index="1">
+										<label>Handlungsraum der Institution dieser Site</label>
+										<value>site</value>
+									</numIndex>
+								</items>
+								<itemsProcFunc>Nordkirche\NkcEvent\Backend\ItemsProcFunc->churchAssociations</itemsProcFunc>
+							</config>
+					</settings.flexform.churchAssociation>
+
+					<settings.flexform.targetGroupCollection>
+							<label>Veranstaltungen für diese Zielgruppen darstellen</label>
+							<config>
+								<type>select</type>
+								<renderType>selectMultipleSideBySide</renderType>
+								<itemsProcFunc>Nordkirche\NkcBase\CustomField\SelectObject->createNapiItems</itemsProcFunc>
+								<allowed>targetGroup</allowed>
+								<minItems>0</minItems>
+								<maxItems>99</maxItems>
+								<size>10</size>
+							</config>
+					</settings.flexform.targetGroupCollection>
+
+					<settings.flexform.categories>
+							<label>Veranstaltungen mit diesen Kategorien darstellen</label>
+							<exclude>1</exclude>
+							<config>
+								<type>select</type>
+								<renderMode>tree</renderMode>
+								<renderType>selectTree</renderType>
+								<treeConfig>
+									<parentField>parent</parentField>
+									<appearance>
+										<collapseAll>TRUE</collapseAll>
+										<showHeader>TRUE</showHeader>
+									</appearance>
+								</treeConfig>
+								<foreign_table>sys_category</foreign_table>
+								<size>10</size>
+								<autoSizeMax>20</autoSizeMax>
+								<minitems>0</minitems>
+								<maxitems>20</maxitems>
+							</config>
+					</settings.flexform.categories>
+
+					<settings.flexform.includeSubCategories>
+							<label>Unterkategorien einbeziehen</label>
+							<config>
+								<type>check</type>
+								<default>0</default>
+							</config>
+					</settings.flexform.includeSubCategories>
+
+					<settings.flexform.categoryOperator>
+							<label>Kategorie-Operator</label>
+							<exclude>1</exclude>
+							<config>
+								<type>select</type>
+								<renderType>selectSingle</renderType>
+								<items>
+									<numIndex index="0">
+										<label>ODER: eine der gewählen Kategorien muss gesetzt sein</label>
+										<value>OR</value>
+									</numIndex>
+									<numIndex index="1">
+										<label>UND: alle Kategorien müssen gesetzt sein</label>
+										<value>AND</value>
+									</numIndex>
+								</items>
+							</config>
+					</settings.flexform.categoryOperator>
+
+					<settings.flexform.dateFrom>
+							<label>Zeitraum von</label>
+							<config>
+								<type>datetime</type>
+								<format>date</format>
+							</config>
+					</settings.flexform.dateFrom>
+
+					<settings.flexform.dateTo>
+							<label>Zeitraum bis</label>
+							<config>
+								<type>datetime</type>
+								<format>date</format>
+							</config>
+					</settings.flexform.dateTo>
+
+                    <settings.flexform.numDays>
+                            <label>Die folgenden x Tage</label>
+                            <config>
+                                <type>input</type>
+                                <size>3</size>
+                            </config>
+                    </settings.flexform.numDays>
+
+					<settings.flexform.geosearch>
+							<label>Auswahl über Geodaten einschränken</label>
+							<onChange>reload</onChange>
+							<config>
+								<type>check</type>
+								<default>0</default>
+							</config>
+					</settings.flexform.geosearch>
+
+					<settings.flexform.latitude>
+							<label>Breitengrad</label>
+							<config>
+								<type>input</type>
+								<size>5</size>
+								<default></default>
+							</config>
+							<displayCond>FIELD:settings.flexform.geosearch:=:1</displayCond>
+					</settings.flexform.latitude>
+
+					<settings.flexform.longitude>
+							<label>Längengrad</label>
+							<config>
+								<type>input</type>
+								<size>5</size>
+								<default></default>
+							</config>
+							<displayCond>FIELD:settings.flexform.geosearch:=:1</displayCond>
+					</settings.flexform.longitude>
+
+					<settings.flexform.radius>
+							<label>Umkreis (km)</label>
+							<config>
+								<type>input</type>
+								<size>5</size>
+								<default></default>
+							</config>
+							<displayCond>FIELD:settings.flexform.geosearch:=:1</displayCond>
+					</settings.flexform.radius>
+				</el>
+			</ROOT>
+		</sDEF>
+		<sPages>
+			<ROOT>
+				<sheetTitle>Seiten</sheetTitle>
+				<type>array</type>
+				<el>
+					<settings.flexform.pidSingle>
+							<label>Seite für Einzelansicht</label>
+							<config>
+								<type>group</type>
+								<allowed>pages</allowed>
+								<size>1</size>
+								<maxitems>1</maxitems>
+								<minitems>0</minitems>
+							</config>
+					</settings.flexform.pidSingle>
+				</el>
+			</ROOT>
+		</sPages>
+	</sheets>
+</T3DataStructure>

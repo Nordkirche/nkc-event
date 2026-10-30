@@ -99,6 +99,22 @@
 							</config>
 					</settings.flexform.institutionCollection>
 
+					<settings.flexform.restrictToSiteInstitution>
+							<label>Nur Veranstaltungen der Institution dieser Site (TypoScript: plugin.tx_nkcevent.settings.siteInstitutions)</label>
+							<config>
+								<type>check</type>
+								<default>0</default>
+							</config>
+					</settings.flexform.restrictToSiteInstitution>
+
+					<settings.flexform.includeChildInstitutions>
+							<label>Veranstaltungen der Unterinstitutionen einbeziehen (alle Ebenen)</label>
+							<config>
+								<type>check</type>
+								<default>0</default>
+							</config>
+					</settings.flexform.includeChildInstitutions>
+
 
 					<settings.flexform.categories>
 							<label>Veranstaltungen mit diesen Kategorien darstellen</label>
@@ -121,6 +137,14 @@
 								<maxitems>20</maxitems>
 							</config>
 					</settings.flexform.categories>
+
+					<settings.flexform.includeSubCategories>
+							<label>Unterkategorien einbeziehen</label>
+							<config>
+								<type>check</type>
+								<default>0</default>
+							</config>
+					</settings.flexform.includeSubCategories>
 
 					<settings.flexform.selectCategoryOption>
 							<label>Kategorieoption</label>

@@ -15,6 +15,7 @@ ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', 'nordki
 $plugins = [
     // plugin name => flexform
     'List' => 'list',
+    'Calendar' => 'calendar',
     'Show' => 'show',
     'SearchForm' => 'searchform',
     'Redirect' => '',

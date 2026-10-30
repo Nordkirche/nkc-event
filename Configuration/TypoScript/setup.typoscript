@@ -131,6 +131,12 @@ plugin.tx_nkcevent {
 
         maxItems = 25
 
+        # Institution(en) der Site, für "Nur Veranstaltungen der Institution dieser Site"
+        siteInstitutions = {$plugin.tx_nkcevent.settings.siteInstitutions}
+
+        # Layout der Listen, wenn im Plugin keins gewählt ist (Partial Event/Teaser/<Layout>)
+        templateLayout = {$plugin.tx_nkcevent.settings.templateLayout}
+
         ajaxTypeNum = {$plugin.tx_nkcevent_map.ajaxTypeNum}
 
         ajaxListTypeNum = {$plugin.tx_nkcevent_main.ajaxTypeNum}
@@ -160,6 +166,26 @@ plugin.tx_nkcevent {
 
 plugin.tx_nkcevent_show < plugin.tx_nkcevent
 plugin.tx_nkcevent_list < plugin.tx_nkcevent
+plugin.tx_nkcevent_calendar < plugin.tx_nkcevent
+plugin.tx_nkcevent_calendar._CSS_DEFAULT_STYLE (
+    .nkc-calendar__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .nkc-calendar__nav { font-size: 1.5rem; line-height: 1; padding: .25rem .75rem; text-decoration: none; }
+    .nkc-calendar__sheet { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .nkc-calendar__caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .nkc-calendar__sheet th, .nkc-calendar__day { border: 1px solid #ddd; padding: .25rem; vertical-align: top; }
+    .nkc-calendar__day { height: 5rem; overflow-wrap: anywhere; }
+    .nkc-calendar__day--outside { background: #f6f6f6; }
+    .nkc-calendar__day--today .nkc-calendar__date { font-weight: bold; text-decoration: underline; }
+    .nkc-calendar__events { list-style: none; margin: .25rem 0 0; padding: 0; font-size: .85em; }
+    .nkc-calendar__event + .nkc-calendar__event { margin-top: .25rem; }
+    .nkc-calendar__time { display: block; color: #666; }
+    [data-nkc-calendar][aria-busy="true"] { opacity: .6; }
+    @media (max-width: 640px) {
+        .nkc-calendar__sheet thead { display: none; }
+        .nkc-calendar__sheet, .nkc-calendar__sheet tbody, .nkc-calendar__sheet tr, .nkc-calendar__day { display: block; width: auto; height: auto; }
+        .nkc-calendar__day--outside, .nkc-calendar__day:not(.nkc-calendar__day--events) { display: none; }
+    }
+)
 plugin.tx_nkcevent_searchform < plugin.tx_nkcevent
 plugin.tx_nkcevent_redirect < plugin.tx_nkcevent
 
@@ -187,6 +213,8 @@ plugin.tx_nkcevent_map {
         digitalEventCategoryId < plugin.tx_nkcevent.settings.digitalEventCategoryId
 
         hybridEventCategoryId < plugin.tx_nkcevent.settings.hybridEventCategoryId
+
+        siteInstitutions < plugin.tx_nkcevent.settings.siteInstitutions
 
         ajaxTypeNum = {$plugin.tx_nkcevent_map.ajaxTypeNum}
 

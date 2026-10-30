@@ -9,8 +9,9 @@ defined('TYPO3') || die();
 $plugins = [
     // plugin name => [actions, non-cacheable actions]
     'Show' => [[EventController::class => 'show,export'], [EventController::class => 'export']],
-    'List' => [[EventController::class => 'list,search,data,paginatedData'], [EventController::class => 'search,paginatedData']],
-    'SearchForm' => [[EventController::class => 'searchForm'], [EventController::class => 'searchForm']],
+    'List' => [[EventController::class => 'list,search,data,paginatedData,autocomplete'], [EventController::class => 'search,paginatedData,autocomplete']],
+    'Calendar' => [[EventController::class => 'calendar'], []],
+    'SearchForm' => [[EventController::class => 'searchForm,autocomplete'], [EventController::class => 'searchForm,autocomplete']],
     'Redirect' => [[EventController::class => 'redirect'], [EventController::class => 'redirect']],
     'Map' => [[MapController::class => 'show,data,paginatedData'], [MapController::class => 'paginatedData']],
     'MapList' => [[MapController::class => 'list,data,paginatedData'], [MapController::class => 'paginatedData']],
@@ -28,4 +29,9 @@ foreach (['nkce'] as $parameter) {
 foreach (['tx_nkcevent_list', 'tx_nkcevent_map', 'tx_nkcevent_maplist'] as $namespace) {
     $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['excludedParameters'][] = $namespace . '[page]';
     $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['excludedParameters'][] = $namespace . '[requestId]';
+}
+
+// Search term of the suggestions (autocomplete.js)
+foreach (['tx_nkcevent_list', 'tx_nkcevent_searchform'] as $namespace) {
+    $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash']['excludedParameters'][] = $namespace . '[q]';
 }

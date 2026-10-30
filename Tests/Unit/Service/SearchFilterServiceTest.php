@@ -16,9 +16,9 @@ use Nordkirche\NkcEvent\Event\ModifySearchFilterValuesEvent;
 use Nordkirche\NkcEvent\Service\SearchFilterService;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Extbase\Domain\Model\Category;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
@@ -120,7 +120,7 @@ final class SearchFilterServiceTest extends UnitTestCase
         $ndkApiFactory = new NdkApiFactory(
             new NapiSettings($extensionConfiguration),
             new LogManager(),
-            new TrafficStats(self::createStub(FrontendInterface::class))
+            new TrafficStats(self::createStub(Registry::class))
         );
 
         $requested = &$this->requestedInstitutions;

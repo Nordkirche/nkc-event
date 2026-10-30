@@ -17,6 +17,7 @@ use Nordkirche\NkcEvent\Service\EventQueryService;
 use TYPO3\CMS\Backend\Preview\PreviewRendererInterface;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\GridColumnItem;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -34,6 +35,11 @@ class BackendPreviewRenderer implements PreviewRendererInterface
      */
     protected $flexformData;
 
+    /**
+     * Page of the content element
+     */
+    private int $pageId = 0;
+
     public function __construct(
         private readonly NdkApiFactory $ndkApiFactory,
         private readonly EventMapItemService $mapItemService,
@@ -49,6 +55,7 @@ class BackendPreviewRenderer implements PreviewRendererInterface
     public function renderPageModulePreviewContent(GridColumnItem $item): string
     {
         $row = $this->getRow($item);
+        $this->pageId = (int)($row['pid'] ?? 0);
         $flexform = GeneralUtility::xml2array((string)($row['pi_flexform'] ?? ''));
         $this->flexformData = is_array($flexform) ? $flexform : [];
 
@@ -68,6 +75,7 @@ class BackendPreviewRenderer implements PreviewRendererInterface
                 $content .= $this->renderEventSingleView();
                 break;
             case 'nkcevent_list':
+            case 'nkcevent_calendar':
                 $layoutKey = $this->getFieldFromFlexform('settings.flexform.searchFormTemplate', 'sTemplate');
                 $content .= '<p>Layout: ' . ($layoutKey ? $layoutKey : 'Default') . '</p>';
                 $content .= $this->renderEventListView();
@@ -165,32 +173,43 @@ class BackendPreviewRenderer implements PreviewRendererInterface
             'dateFrom' => $this->getFieldFromFlexform('settings.flexform.dateFrom', 'sDEF'),
             'dateTo' => $this->getFieldFromFlexform('settings.flexform.dateTo', 'sDEF'),
             'numDays' => $this->getFieldFromFlexform('settings.flexform.numDays', 'sDEF'),
+            'includeChildInstitutions' => $this->getFieldFromFlexform('settings.flexform.includeChildInstitutions', 'sDEF'),
+            'includeSubCategories' => $this->getFieldFromFlexform('settings.flexform.includeSubCategories', 'sDEF'),
+            'cities' => $this->getFieldFromFlexform('settings.flexform.cities', 'sDEF'),
+            'zipCodes' => $this->getFieldFromFlexform('settings.flexform.zipCodes', 'sDEF'),
+            'restrictToSiteInstitution' => $this->getFieldFromFlexform('settings.flexform.restrictToSiteInstitution', 'sDEF'),
+            'churchAssociation' => $this->getFieldFromFlexform('settings.flexform.churchAssociation', 'sDEF'),
         ];
 
-        $this->queryService->applyListFilters($query, $flexform);
+        // Institution of the site: from the site settings. Set in TypoScript only, it is unknown here.
+        $settings = ['siteInstitutions' => $this->getSiteInstitutions()];
+        $needsSite = !empty($flexform['restrictToSiteInstitution'])
+            || $flexform['churchAssociation'] === EventQueryService::CHURCH_ASSOCIATION_OF_SITE;
+        if ($needsSite && $this->queryService->getSiteInstitutions($settings) === []) {
+            return '<p><em>' . htmlspecialchars(
+                'Die Veranstaltungen hängen von der Institution der Site ab (TypoScript plugin.tx_nkcevent.settings.siteInstitutions). '
+                . 'Sie ist nur im Frontend bekannt, deshalb gibt es hier keine Vorschau.'
+            ) . '</em></p>';
+        }
+
+        $this->queryService->applyListFilters($query, $flexform, $settings);
         // Same as the frontend list: no past events
         $query->setTimeFromStart(new \DateTime('today'));
 
         // Get Events
         $events = $eventRepository->get($query);
 
-        if ($events) {
-            $content .= '<p>Vorschau:<br /><ul>';
+        if ($events->getRecordCount() === 0) {
+            return 'Keine Treffer!';
+        }
 
-            foreach ($events as $event) {
-                $content .= '<li>';
-                $content .= htmlspecialchars((string)$event->getLabel());
-                $content .= ' [' . (int)($event->getId()) . ']';
-                $content .= '</li>';
-            }
-
-            $content .= '</ul></p>';
-
-            if ($events->getPageCount() > 1) {
-                $content .= '... und ' . ($events->getRecordCount() - 10) . ' weitere Veranstaltungen';
-            }
-        } else {
-            $content .= 'Keine Treffer!';
+        $content .= '<p>Vorschau:<br /><ul>';
+        foreach ($events as $event) {
+            $content .= '<li>' . htmlspecialchars((string)$event->getLabel()) . ' [' . (int)$event->getId() . ']</li>';
+        }
+        $content .= '</ul></p>';
+        if ($events->getPageCount() > 1) {
+            $content .= '... und ' . ($events->getRecordCount() - 10) . ' weitere Veranstaltungen';
         }
 
         return $content;
@@ -242,6 +261,19 @@ class BackendPreviewRenderer implements PreviewRendererInterface
         }
 
         return null;
+    }
+
+    /**
+     * plugin.tx_nkcevent.settings.siteInstitutions of the site settings
+     */
+    private function getSiteInstitutions(): string
+    {
+        try {
+            $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($this->pageId);
+            return (string)$site->getSettings()->get('plugin.tx_nkcevent.settings.siteInstitutions', '');
+        } catch (\Throwable) {
+            return '';
+        }
     }
 
     /**

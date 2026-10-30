@@ -4,11 +4,13 @@
 ,10,1,"Veranstaltungen","/veranstaltungen",0
 ,11,1,"Veranstaltung","/veranstaltung",0
 ,13,1,"Karte","/veranstaltungskarte",0
+,15,1,"Kalender","/kalender",0
 "tt_content"
 ,"uid","pid","CType"
 ,10,10,"nkcevent_list"
 ,11,11,"nkcevent_show"
 ,13,13,"nkcevent_maplist"
+,15,15,"nkcevent_calendar"
 "tx_slug_mapping"
 ,"uid","object_name","object_id","slug"
 ,1,"nkc_base_event","4711","orgelkonzert"

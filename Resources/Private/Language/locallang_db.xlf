@@ -12,6 +12,12 @@
 			<trans-unit id="wizard.nkcevent_list.description">
 				<source>Frei konfigurierbare Listen mit Veranstaltungen</source>
 			</trans-unit>
+			<trans-unit id="wizard.nkcevent_calendar">
+				<source>Veranstaltungskalender</source>
+			</trans-unit>
+			<trans-unit id="wizard.nkcevent_calendar.description">
+				<source>Monatsansicht mit den Veranstaltungen jedes Tages</source>
+			</trans-unit>
 			<trans-unit id="wizard.nkcevent_show">
 				<source>Detail-Ansicht einer Veranstaltung</source>
 			</trans-unit>

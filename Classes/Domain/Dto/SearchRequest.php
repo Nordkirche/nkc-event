@@ -40,6 +40,13 @@ class SearchRequest
     protected $category;
 
     /**
+     * NAPI event type ("Rubrik"), e.g. church_service
+     *
+     * @var string
+     */
+    protected $eventType = '';
+
+    /**
      * @var array
      */
     protected $array = [];
@@ -156,6 +163,17 @@ class SearchRequest
         $this->category = $category;
     }
 
+    public function getEventType(): string
+    {
+        return (string)$this->eventType;
+    }
+
+    public function setEventType(string $eventType): void
+    {
+        // Only the characters of the NAPI event types
+        $this->eventType = (string)preg_replace('/[^a-z_-]/', '', strtolower($eventType));
+    }
+
     /**
      * @return array
      */
@@ -183,6 +201,9 @@ class SearchRequest
         if ($this->getCategory() != 0) {
             $array['category'] = $this->getCategory();
         }
+        if ($this->getEventType() !== '') {
+            $array['eventType'] = $this->getEventType();
+        }
         return $array;
     }
 
@@ -200,10 +221,10 @@ class SearchRequest
     public function decorate($data): void
     {
         if (is_array($data)) {
-            foreach (['search', 'category', 'city', 'location', 'dateFrom', 'dateTo', 'organizer'] as $property) {
+            foreach (['search', 'category', 'eventType', 'city', 'location', 'dateFrom', 'dateTo', 'organizer'] as $property) {
                 if (!empty($data[$property])) {
                     $setterName = 'set' . ucfirst($property);
-                    $this->$setterName($data[$property]);
+                    $this->$setterName(in_array($property, ['search', 'eventType', 'city'], true) ? (string)$data[$property] : $data[$property]);
                 }
             }
         }
