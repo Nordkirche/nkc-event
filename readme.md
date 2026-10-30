@@ -116,13 +116,6 @@ sind dieselben wie in der Liste. Geblättert wird ohne Neuladen (`calendar.js`, 
 die Links funktionieren auch ohne JavaScript: `/<seite>/2026/11`. Auf schmalen Bildschirmen
 erscheinen nur die Tage mit Veranstaltungen untereinander.
 
-## Umstieg von nk_event
-
-Die Plugins der alten Extension nk_event (inkl. Filter-Datensätze, Datumsvorlagen und
-Rechte der Benutzergruppen) übernimmt die separate Extension
-**nordkirche/nk2nkc-migration** (Extension nk2nkc_migration). Sie wird nur für die Migration
-installiert und danach wieder entfernt.
-
 ## PSR-14 Events
 Es gibt PSR-14 Events, um die NAPI Queries und die Ausgabe der Daten anzupassen:
 
