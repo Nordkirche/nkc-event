@@ -94,9 +94,14 @@ class EventMapItemService
         $labels = (array)($settings['mapping']['eventType'] ?? []);
         $resolved = [];
         foreach ($facets as $facetType => $values) {
+            // Aliases (e.g. default, event, base) are merged into one option
+            $counts = [];
             foreach ((array)$values as $value) {
-                [$id, $count] = [key($value), current($value)];
-                $resolved[$facetType][$id] = sprintf('%s (%s)', $labels[$id] ?? $id, $count);
+                $id = EventMarkerService::normalizeEventType((string)key($value));
+                $counts[$id] = ($counts[$id] ?? 0) + (int)current($value);
+            }
+            foreach ($counts as $id => $count) {
+                $resolved[$facetType][$id] = sprintf('%s (%d)', $labels[$id] ?? $id, $count);
             }
             if (isset($resolved[$facetType])) {
                 asort($resolved[$facetType]);

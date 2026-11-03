@@ -57,6 +57,18 @@ final class EventMapItemServiceTest extends UnitTestCase
         self::assertSame('Orgel', $this->dispatched->getEventQuery()->getQuery());
     }
 
+    #[Test]
+    public function eventTypeFacetsWithTheSameLabelAreMerged(): void
+    {
+        $facets = ['event_types' => [['default' => 2], ['music' => 4], ['event' => 3], ['base' => 1]]];
+        $settings = ['mapping' => ['eventType' => ['default' => 'Gemeindeleben', 'event' => 'Gemeindeleben', 'base' => 'Gemeindeleben', 'music' => 'Konzerte']]];
+
+        self::assertSame(
+            ['event_types' => ['event' => 'Gemeindeleben (6)', 'music' => 'Konzerte (4)']],
+            $this->createSubject()->resolveFacets($facets, $settings)
+        );
+    }
+
     private function createSubject(?\Closure $listener = null): EventMapItemService
     {
         $dispatcher = self::createStub(EventDispatcherInterface::class);

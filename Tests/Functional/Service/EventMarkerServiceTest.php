@@ -37,7 +37,8 @@ final class EventMarkerServiceTest extends FunctionalTestCase
         yield 'digital (first category id)' => ['church_service', ['606'], 'digital-event-church_service', 'event_digital-gottesdienst.svg'];
         yield 'digital (second category id)' => ['music', ['1', '647'], 'digital-event-music', 'event_digital-konzerte.svg'];
         yield 'hybrid wins over digital' => ['edu', ['606', '646'], 'hybrid-event-edu', 'event_hybrid-bildung.svg'];
-        yield 'no event type' => ['', [], 'event-default', 'event_gemeindeleben.svg'];
+        yield 'no event type' => ['', [], 'event-event', 'event_gemeindeleben.svg'];
+        yield 'base is an alias of event' => ['base', [], 'event-event', 'event_gemeindeleben.svg'];
         yield 'unknown event type' => ['excursion', [], 'event-excursion', 'event_gemeindeleben.svg'];
     }
 

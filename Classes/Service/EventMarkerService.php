@@ -20,6 +20,11 @@ class EventMarkerService
     private const FALLBACK_ICON = 'gemeindeleben';
 
     /**
+     * Event types sharing the label "Gemeindeleben": one filter option and one marker type for all
+     */
+    public const EVENT_TYPE_ALIASES = ['' => 'event', 'default' => 'event', 'base' => 'event'];
+
+    /**
      * @param array $settings eventIconName, mapping.eventIcon, digitalEventCategoryId, hybridEventCategoryId
      */
     public function createMarker(Event $event, array $settings, string $info = ''): ?array
@@ -43,9 +48,14 @@ class EventMarkerService
             'lat' => $position[0],
             'lon' => $position[1],
             'info' => $info,
-            'type' => $prefix . 'event-' . $mappingType,
+            'type' => $prefix . 'event-' . self::normalizeEventType($mappingType),
             'icon' => $this->getIcon($prefix . $mappingType, $settings),
         ];
+    }
+
+    public static function normalizeEventType(string $type): string
+    {
+        return self::EVENT_TYPE_ALIASES[$type] ?? $type;
     }
 
     public function isDigital(Event $event, array $settings): bool
